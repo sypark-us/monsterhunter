@@ -1,6 +1,8 @@
 async page=>{
  const assert=(value,message)=>{if(!value)throw Error(message)},hangul=/[가-힣]/;
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ // Play the Korean campaign in short landscape, where hints overlap scene actors.
+ await page.setViewportSize({width:844,height:390});
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
  await page.evaluate(()=>localStorage.clear());await page.reload({waitUntil:'networkidle'});
  await page.locator('#introLanguage').selectOption('ko');

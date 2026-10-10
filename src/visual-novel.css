@@ -115,3 +115,6 @@ html:lang(ko) .actor .name{font-family:'Hundred Korean','Apple SD Gothic Neo','M
  html:lang(ko) .stage:has([data-mode="conversation"]) .line{max-height:none;overflow:visible}
  html:lang(ko) .stage:has([data-mode="conversation"]) .choices{flex:1 0 92px;min-height:92px}
 }
+
+/* Story hints describe the scene without blocking character interaction. */
+.whisper{pointer-events:none}
