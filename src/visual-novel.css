@@ -101,3 +101,17 @@
 .story-controls summary{cursor:pointer;color:#e4c5a7}
 .resume-context{border-left:2px solid var(--gold);padding-left:16px;margin:24px 0}.resume-context h3{font:16px Georgia;color:#e4c5a7}
 @media(max-width:720px){.deadline{font-size:8px}.speaker-role{font-size:10px}.action-cost{font-size:9px}}
+.menu select,.language-picker select{border:1px solid var(--line);border-radius:4px;padding:7px 9px;background:#131722;color:var(--paper);font:12px system-ui}
+.language-picker{display:flex;align-items:center;gap:12px;font:13px system-ui;color:var(--muted);margin-bottom:16px}
+@font-face{font-family:'Hundred Korean';font-style:normal;font-weight:400 600;font-display:swap;src:url('../assets/fonts/noto-sans-kr.woff2') format('woff2')}
+html:lang(ko) body{word-break:keep-all;overflow-wrap:anywhere}
+html:lang(ko) body,html:lang(ko) body *{font-family:'Hundred Korean','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif}
+html:lang(ko) .line{line-height:1.6}
+@media(max-width:720px){.menu select{padding:5px;font-size:10px}}
+
+html:lang(ko) .actor .name{font-family:'Hundred Korean','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif}
+@media(max-width:720px){
+ html:lang(ko) .stage:has([data-mode="conversation"]) .dialogue .top{flex-shrink:1;min-height:0;overflow:auto}
+ html:lang(ko) .stage:has([data-mode="conversation"]) .line{max-height:none;overflow:visible}
+ html:lang(ko) .stage:has([data-mode="conversation"]) .choices{flex:1 0 92px;min-height:92px}
+}

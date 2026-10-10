@@ -1,10 +1,12 @@
-# The Hundred: Hong Kong — Campaign v0.4.3
+# The Hundred: Hong Kong — Campaign v0.4.4
 
 A single-player supernatural story RPG played in a browser. One hundred demons have attached themselves to human hosts. Your demon remembers its powers through conversation, while you try to keep your own life intact.
 
 [Play the game](https://sypark-us.github.io/monsterhunter/).
 
 ## Playing
+
+Select **English** or **한국어** on the opening screen or in the top menu. Korean covers the complete campaign, choices, Help, history and endings. Language selection persists separately from your saves; changing it preserves progress.
 
 Choose a location. Characters appear within the environment; click one to bring them to the center for a conversation. End the conversation to return to the scene. Nobody is visually identified as possessed or innocent. Listen to what people say, compare their accounts, and learn the conditions of each ritual. A wrong killing or a rival's conversational trap can end your run.
 
@@ -14,6 +16,7 @@ Time, energy, food, work, and rent matter. Your relationships and ability upgrad
 
 ## Included in this release
 
+- English and Korean language options, with a bundled Korean font for consistent display.
 - Five playable chapters: The First Vow, Borrowed Breath, The Last Crossing, What the City Keeps, and The Hundredth Name.
 - Thirty illustrated, clickable characters: twelve recurring leads and eighteen supporting people with their own conversations.
 - Nine locations, including the night clinic, market, ferry pier, and rooftop.
@@ -69,3 +72,5 @@ The browser walkthrough plays all five chapters, exercises all three endings, ch
 - `credits.html`: artwork attribution and audio credits.
 
 This is separate from `sypark-us/guess_who`, the procedurally generated version. The campaign remains handcrafted and conversation-driven, with no evidence inventory or investigation checklist.
+
+To refresh the Korean font subset after editing translations, run `python3 scripts/prepare-korean-font.py` (requires network access). The resulting WOFF2 file and coverage manifest are bundled; playing and CI verification use those files offline.

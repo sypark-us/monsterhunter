@@ -5,7 +5,7 @@ const fsp=require('node:fs/promises');
 const path=require('node:path');
 const assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..');
-const mime={'.html':'text/html','.css':'text/css','.js':'text/javascript','.jpg':'image/jpeg','.avif':'image/avif','.png':'image/png'};
+const mime={'.html':'text/html','.css':'text/css','.js':'text/javascript','.jpg':'image/jpeg','.avif':'image/avif','.png':'image/png','.woff2':'font/woff2'};
 const server=http.createServer(async(req,res)=>{
  try{
   const relative=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
@@ -27,8 +27,11 @@ const server=http.createServer(async(req,res)=>{
   const walk=vm.runInNewContext(await fsp.readFile(path.join(root,'scripts/browser-walk.js'),'utf8'),{setTimeout});
   const result=await walk(page);
   result.clarity=clarity;
+  const languageWalk=vm.runInNewContext(await fsp.readFile(path.join(root,'scripts/browser-language.js'),'utf8'));
+  result.language=await languageWalk(page);
+  assert.equal(errors.length,0,'Full English and Korean runs must have no JavaScript errors');
   await fsp.writeFile(path.join(root,'screenshots','result.json'),JSON.stringify(result,null,2));
-  console.log('PASS: story guidance, persistent learned rules, character roles, deadline and action costs; five chapters, three endings, nine locations, thirty high-resolution characters, twelve activity/portrait transitions, character/background scale across five viewports, dialogue clearance, saves/history/settings and real audio; no JS errors.');
+  console.log('PASS: story guidance, persistent learned rules, character roles, deadline and action costs; five chapters, three endings, nine locations, thirty high-resolution characters, twelve activity/portrait transitions, character/background scale across five viewports, dialogue clearance, saves/history/settings and real audio; English and Korean campaigns, persistent language selection and save compatibility; no JS errors.');
  }catch(error){
   await page.screenshot({path:path.join(root,'screenshots','failure.png'),fullPage:true}).catch(()=>{});
   await fsp.writeFile(path.join(root,'screenshots','error.json'),JSON.stringify({error:String(error),pageErrors:errors},null,2));

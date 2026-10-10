@@ -2,14 +2,25 @@
 (function(){
   'use strict';
   const $=id=>document.getElementById(id);
-  const Story=window.HundredCampaign,Engine=window.HundredEngine,Visuals=window.HundredVisuals,Staging=window.HundredStaging,Guidance=window.HundredGuidance;
+  const Story=window.HundredCampaign,Engine=window.HundredEngine,Visuals=window.HundredVisuals,Staging=window.HundredStaging,Guidance=window.HundredGuidance,I18n=window.HundredI18n;
   const SAVE_KEY='the-hundred-story-v3';
   const audio=window.HundredAudio.create();
   let preferences={music:.35,ambience:.18,speed:0};
   try{preferences={...preferences,...JSON.parse(localStorage.getItem('hundred-settings')||'{}')}}catch{}
+  let language='en';
+  try{if(localStorage.getItem('hundred-language')==='ko')language='ko'}catch{}
+  const tr=value=>I18n.translate(value,language);
+  function localize(){
+    document.documentElement.lang=language;
+    I18n.localizeDOM(document.body,language);
+    document.querySelectorAll('[data-relationship]').forEach(label=>{label.textContent=I18n.relationshipLabel(Number(label.dataset.relationship),language)});
+    document.querySelectorAll('[data-language-select]').forEach(select=>{select.value=language});
+    document.title=language==='ko'?'더 헌드레드: 홍콩 — v0.4.4':'The Hundred: Hong Kong — Campaign v0.4.4';
+  }
   audio.setVolumes(preferences.music,preferences.ambience);
   let typing=null,lastLine='';
   function showLine(text){
+    text=tr(text);
     if(text===lastLine)return;lastLine=text;clearInterval(typing);
     if(!preferences.speed){$('line').textContent=text;return}
     let index=0;$('line').textContent='';typing=setInterval(()=>{
@@ -44,13 +55,13 @@
   layoutObserver.observe(document.querySelector('.dialogue'));layoutObserver.observe(document.querySelector('header'));
   window.addEventListener('resize',reserveDialogueSpace);
   const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  if(!Story||!Engine||!Visuals||!Staging||!Guidance){
+  if(!Story||!Engine||!Visuals||!Staging||!Guidance||!I18n){
     $('fatal').classList.remove('hidden');
     $('fatal').textContent='Some game files could not be loaded. Please refresh this page.';
     return;
   }
   let state=Engine.newGame(),saveAvailable=false,currentPlace=null,photoRequest=0;
-  const toast=message=>{$('toast').textContent=message;$('toast').classList.remove('hidden')};
+  const toast=message=>{$('toast').textContent=message;I18n.localizeDOM($('toast'),language);$('toast').classList.remove('hidden')};
   function persist(){
     try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));saveAvailable=true;return true}
     catch{toast('This browser cannot save locally. The current game can still be played.');return false}
@@ -67,12 +78,12 @@
     if(currentPlace===place&&!force)return;
     currentPlace=place;
     const token=++photoRequest,sources=Visuals.photoSources(place),backdrop=$('backdrop');
-    $('photoStatus').classList.remove('hidden');$('photoMessage').textContent='Loading scene…';
+    $('photoStatus').classList.remove('hidden');$('photoMessage').textContent='Loading scene…';I18n.localizeDOM($('photoStatus'),language);
     $('retryPhoto').classList.add('hidden');
     const attempt=index=>{
       if(token!==photoRequest)return;
       if(index>=sources.length){
-        $('photoMessage').textContent='The scene photo could not load. Check your connection.';
+        $('photoMessage').textContent='The scene photo could not load. Check your connection.';I18n.localizeDOM($('photoStatus'),language);
         $('retryPhoto').classList.remove('hidden');return;
       }
       const image=new Image();
@@ -134,6 +145,7 @@
     }
     $('whisper').textContent=view.whisper||'';$('whisper').classList.toggle('hidden',!view.whisper);
     renderEnding();
+    localize();
     reserveDialogueSpace();
   }
   function renderEnding(){
@@ -150,7 +162,7 @@
     panel.querySelectorAll('[data-ending]').forEach(button=>button.onclick=()=>apply(Engine.finish(state,button.dataset.ending)));
     $('playAgain').onclick=()=>{state=Engine.newGame();persist();render()};
   }
-  function openPanel(title,body){$('panelTitle').textContent=title;$('panelBody').innerHTML=body;$('playerPanel').showModal()}
+  function openPanel(title,body){$('panelTitle').textContent=title;$('panelBody').innerHTML=body;localize();$('playerPanel').showModal()}
   function costLabel(cost){
     const parts=[cost.minutes+' min'];
     if(cost.cash)parts.push((cost.cash>0?'+':'−')+'HK$'+Math.abs(cost.cash));
@@ -181,15 +193,15 @@
     }).join(''));
     $('panelBody').querySelectorAll('[data-save-slot]').forEach(button=>button.onclick=()=>{
       const key='hundred-slot-'+button.dataset.saveSlot;
-      try{if(localStorage.getItem(key)&&!confirm('Replace this saved story?'))return;localStorage.setItem(key,JSON.stringify(state));$('playerPanel').close();toast('Saved in slot '+button.dataset.saveSlot)}catch{toast('This browser could not save the slot.')}
+      try{if(localStorage.getItem(key)&&!confirm(tr('Replace this saved story?')))return;localStorage.setItem(key,JSON.stringify(state));$('playerPanel').close();toast('Saved in slot '+button.dataset.saveSlot)}catch{toast('This browser could not save the slot.')}
     });
     $('panelBody').querySelectorAll('[data-load-slot]').forEach(button=>button.onclick=()=>{
-      try{const saved=JSON.parse(localStorage.getItem('hundred-slot-'+button.dataset.loadSlot));if(!saved)return;if(!confirm('Resume this slot and replace the current autosave?'))return;state=Engine.restore(saved);persist();$('playerPanel').close();$('intro').close();$('intro').classList.add('hidden');render()}catch{toast('That saved story could not be read.')}
+      try{const saved=JSON.parse(localStorage.getItem('hundred-slot-'+button.dataset.loadSlot));if(!saved)return;if(!confirm(tr('Resume this slot and replace the current autosave?')))return;state=Engine.restore(saved);persist();$('playerPanel').close();$('intro').close();$('intro').classList.add('hidden');render()}catch{toast('That saved story could not be read.')}
     });
   }
   $('closePanel').onclick=()=>$('playerPanel').close();
   $('history').onclick=()=>openPanel('Conversation History',state.history.length?state.history.map(entry=>'<article class="history-entry"><h3>'+escapeHtml(entry.person)+' <small>Chapter '+entry.chapter+'</small></h3><p class="history-question">'+escapeHtml(entry.ask)+'</p><p>'+escapeHtml(entry.answer)+'</p></article>').join(''):'<p>Your conversations will appear here as you play.</p>');
-  $('progress').onclick=()=>openPanel('Your Life','<p>Chapter '+state.chapter+' · '+escapeHtml(Story.chapter(state.chapter).title)+'</p><p>Human connection: '+state.humanity+' / 10 · Rent paid: '+state.rentPaid+' nights</p><h3>Abilities</h3><p>'+Object.entries(state.stats).map(([id,value])=>escapeHtml(id)+': '+value).join(' · ')+'</p><h3>Relationships</h3>'+Object.entries(state.relationships).map(([id,value])=>'<p>'+escapeHtml(Story.cast[id].name)+' · '+['Unfamiliar','Acquainted','Trusted','Close','Steadfast','Deeply connected'][value]+'</p>').join('')+'<p>Abilities unlock different approaches. Relationships carry into later chapters.</p>');
+  $('progress').onclick=()=>openPanel('Your Life','<p>Chapter '+state.chapter+' · '+escapeHtml(Story.chapter(state.chapter).title)+'</p><p>Human connection: '+state.humanity+' / 10 · Rent paid: '+state.rentPaid+' nights</p><h3>Abilities</h3><p>'+Object.entries(state.stats).map(([id,value])=>escapeHtml(id)+': '+value).join(' · ')+'</p><h3>Relationships</h3>'+Object.entries(state.relationships).map(([id,value])=>'<p>'+escapeHtml(Story.cast[id].name)+' · '+'<span data-no-localize data-relationship="'+value+'">'+I18n.relationshipLabel(value,language)+'</span></p>').join('')+'<p>Abilities unlock different approaches. Relationships carry into later chapters.</p>');
   $('settings').onclick=()=>{
     openPanel('Settings','<label>Music volume <input id="musicVolume" type="range" min="0" max="1" step="0.05" value="'+preferences.music+'"></label><label>Rain ambience <input id="ambienceVolume" type="range" min="0" max="1" step="0.05" value="'+preferences.ambience+'"></label><label>Text speed <select id="textSpeed"><option value="0">Instant</option><option value="25">Slow</option><option value="45">Standard</option><option value="75">Fast</option></select></label><p>Click the dialogue text to reveal the complete line. Audio starts when you turn music on.</p>');
     $('textSpeed').value=preferences.speed;
@@ -198,14 +210,19 @@
   $('line').onclick=()=>{clearInterval(typing);$('line').textContent=lastLine};
   $('line').onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();$('line').click()}};
   $('intro').oncancel=event=>event.preventDefault();
-  async function toggleSound(){try{$('audio').textContent=(await audio.toggle())?'♫ On':'♫ Off'}catch{toast('Audio could not start in this browser.')}}
+  async function toggleSound(){try{$('audio').textContent=(await audio.toggle())?'♫ On':'♫ Off';I18n.localizeDOM($('audio'),language)}catch{toast('Audio could not start in this browser.')}}
   $('begin').onclick=()=>{state=Engine.newGame();persist();$('intro').close();$('intro').classList.add('hidden');render()};
   $('resume').onclick=()=>{$('intro').close();$('intro').classList.add('hidden');render()};
   $('save').onclick=()=>{persist();saveMenu()};
-  $('restart').onclick=()=>{if(window.confirm('Start a new chapter and replace the current save?')){state=Engine.newGame();persist();render()}};
+  $('restart').onclick=()=>{if(window.confirm(tr('Start a new chapter and replace the current save?'))){state=Engine.newGame();persist();render()}};
   $('help').onclick=storyHelp;
   $('audio').onclick=toggleSound;$('retryPhoto').onclick=()=>setPhoto(state.place,true);
   $('toast').onclick=()=>$('toast').classList.add('hidden');
+  document.querySelectorAll('[data-language-select]').forEach(select=>select.onchange=()=>{
+    language=select.value==='ko'?'ko':'en';
+    try{localStorage.setItem('hundred-language',language)}catch{}
+    lastLine='';render();
+  });
   window.addEventListener('keydown',event=>{
     if($('intro').open||$('playerPanel').open||event.target.closest('input,select,textarea')||state.outcome||event.ctrlKey||event.altKey||event.metaKey)return;
     if(event.key==='Escape'&&state.dialogue){apply(Engine.leave(state));return}
@@ -221,7 +238,7 @@
   }
   // Decode an individual sprite before declaring the artwork ready.
   const proof=new Image();proof.src=Visuals.portrait('ada');
-  proof.onload=()=>{document.body.dataset.paintedCast=proof.naturalWidth+'x'+proof.naturalHeight;document.body.dataset.build='0.4.3'};
+  proof.onload=()=>{document.body.dataset.paintedCast=proof.naturalWidth+'x'+proof.naturalHeight;document.body.dataset.build='0.4.4'};
   proof.onerror=()=>{document.body.dataset.paintedCast='error';toast('The character artwork could not be decoded.')};
   render();
   $('intro').showModal();
