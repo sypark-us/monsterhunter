@@ -223,7 +223,10 @@ header{height:75px;display:flex;align-items:center;justify-content:space-between
    const description=success?Story.text("victory"):state.sceneText;
    $("ending").innerHTML='<div class="build">'+(success?"CHAPTER COMPLETE":"GAME OVER")+'</div><h2>'+escapeHtml(title)+'</h2>'+
      '<p>'+escapeHtml(description)+'</p>'+
-     (success?'<p style="font-size:14px">'+escapeHtml(Story.text("continueText"))+'</p><div class="upgrade" id="upgrades">'+
+     (success?'<p style="font-size:14px">'+escapeHtml(state.cash>=state.rentDue?
+       "You can cover tomorrow\'s HK$"+state.rentDue+" rent. Your human life remains stable—for now.":
+       "Your demon survived, but you still owe HK$"+state.rentDue+" rent tomorrow. The human problems aren't over.")+'</p>'+
+       '<p style="font-size:14px">'+escapeHtml(Story.text("continueText"))+'</p><div class="upgrade" id="upgrades">'+
        Object.keys(state.stats).map(key=>'<button data-stat="'+key+'" '+(state.points<=0?"disabled":"")+'>+ '+escapeHtml(key.toUpperCase())+'</button>').join("")+
        '</div><p style="font-size:12px">Available upgrade points: '+state.points+'</p>':'')+
      '<button id="playAgain">Start another run</button>';
