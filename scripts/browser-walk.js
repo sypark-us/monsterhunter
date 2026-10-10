@@ -5,7 +5,7 @@ async page => {
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
  await page.evaluate(()=>localStorage.clear());await page.reload({waitUntil:'networkidle'});
  await page.setViewportSize({width:1440,height:900});
- await page.waitForFunction(()=>document.body.dataset.build==='0.4');
+ await page.waitForFunction(()=>document.body.dataset.build==='0.4.1');
  await page.locator('#begin').click();
  const snapshots={1:await page.evaluate(()=>JSON.parse(localStorage.getItem('the-hundred-story-v3')))};
  const first=['diner','keira','keira_family','keira_guests','keira_oath','keira_work','street','marcus','marcus_oaths','shrine','yuen','yuen_oath','hotel','daniel','daniel_vincent','vincent','vincent_names','vincent_meeting','vincent_keira','vincent_daniel','vincent_press','vincent_cast'];
@@ -35,20 +35,41 @@ async page => {
  }
  // Authentic chapter-start snapshots from the golden path are layout fixtures.
  const cases=[['apartment',1],['street',1],['diner',1],['hotel',1],['shrine',1],['apartment',2],['street',2],['diner',2],['hotel',2],['rooftop',2],['clinic',2],['market',2],['apartment',3],['street',3],['shrine',3],['market',3],['clinic',3],['pier',3],['apartment',4],['street',4],['clinic',4],['market',4],['rooftop',4]];
- const seen=new Set();
+ const seen=new Set(),activityCharacters=new Set(['ada','keira','marcus','iris','vincent','daniel','yuen','mei','celia','owen','jun','sora']),seenActivities=new Set();
+ async function waitForCharacterArt(){
+  await page.waitForFunction(()=>[...document.querySelectorAll('#people img')].every(i=>i.complete&&i.naturalWidth>=1024&&i.naturalHeight>=1536));
+  await page.locator('#people img').evaluateAll(async images=>{
+   await Promise.all(images.map(image=>image.decode()));
+   // ResizeObserver reserves dialogue space after each mode change.
+   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  });
+ }
  for(const viewport of [{width:1440,height:900},{width:768,height:1024},{width:390,height:667}]){
   await page.setViewportSize(viewport);
+  const photographed=new Set();
   for(const [place,chapter] of cases){
    await page.evaluate(s=>localStorage.setItem('the-hundred-story-v3',JSON.stringify(s)),snapshots[chapter]);
    await page.reload({waitUntil:'networkidle'});await page.locator('#resume').click();await page.locator('#locations [data-place="'+place+'"]').click();
    await page.waitForFunction(p=>{const i=document.querySelector('#backdrop');return i.dataset.place===p&&i.complete&&i.naturalWidth>100},place);
-   await page.waitForFunction(()=>[...document.querySelectorAll('#people img')].every(i=>i.complete&&i.naturalWidth>=1024&&i.naturalHeight>=1536));
+   await waitForCharacterArt();
    const people=await page.locator('#people [data-person]').evaluateAll(xs=>xs.map(x=>x.dataset.person));
    assert(people.length>0,'Scene must contain people');
+   const sceneGeometry=await page.locator('#people [data-person]').evaluateAll(xs=>{
+    const dialogue=document.querySelector('.dialogue').getBoundingClientRect();
+    return xs.map(actor=>{const button=actor.getBoundingClientRect(),image=actor.querySelector('.portrait-crop').getBoundingClientRect();return{id:actor.dataset.person,bottom:button.bottom,above:button.bottom<=dialogue.top-8&&image.bottom<=dialogue.top-8}});
+   });
+   assert(sceneGeometry.every(actor=>actor.above),'Exploration figures and feet must clear dialogue: '+place+' chapter '+chapter+' viewport '+viewport.width);
+   if(people.length>1)assert(Math.max(...sceneGeometry.map(actor=>actor.bottom))-Math.min(...sceneGeometry.map(actor=>actor.bottom))>8,'Exploration figures need distinct ground depths: '+place+' chapter '+chapter+' viewport '+viewport.width);
    for(const id of people){
-    seen.add(id);const idle=await page.locator('[data-person="'+id+'"] img').boundingBox();
+    seen.add(id);const actor=page.locator('#people [data-person="'+id+'"]'),idle=await actor.locator('img').boundingBox(),idleSource=await actor.locator('img').getAttribute('src');
+    const activity=activityCharacters.has(id);
+    assert((await actor.getAttribute('data-pose'))===(activity?'activity':'portrait'),'Exploration pose matches character: '+id);
+    assert(idleSource.split('?')[0]==='assets/characters/'+(activity?'scene/':'')+id+'.png','Exploration uses the correct artwork: '+id);
+    if(activity)seenActivities.add(id);
     await page.locator('[data-person="'+id+'"]').click();
-    await page.waitForTimeout(50);
+    await waitForCharacterArt();
+    assert((await actor.getAttribute('data-pose'))==='portrait','Conversation switches to portrait: '+id);
+    assert((await actor.locator('img').getAttribute('src')).split('?')[0]==='assets/characters/'+id+'.png','Conversation shows the matching portrait: '+id);
     const geometry=await page.locator('.actor.selected').evaluate(el=>{
      const r=el.getBoundingClientRect(),p=el.parentElement.getBoundingClientRect(),d=document.querySelector('.dialogue').getBoundingClientRect();
      return{centered:Math.abs(r.x+r.width/2-p.x-p.width/2)<2,above:r.bottom<=d.top-8,width:el.querySelector("img").getBoundingClientRect().width,dialogueVisible:d.bottom<=window.innerHeight+1,inside:r.left>=p.left&&r.right<=p.right&&r.top>=p.top-1,others:[...el.parentElement.children].filter(x=>!x.hidden).length};
@@ -56,14 +77,18 @@ async page => {
     assert(geometry.centered,'Speaker must be centered: '+id);assert(geometry.above,'Speaker must clear dialogue: '+id);assert(geometry.dialogueVisible,'Dialogue fits viewport: '+id);
     assert(geometry.inside,'Speaker must fit scene: '+id);assert(geometry.others===1,'Only selected speaker visible');
     assert(geometry.width>idle.width,'Speaker must become larger: '+id);
-    await page.locator('#leave').click();assert(await page.locator('#people [data-person]:visible').count()===people.length,'Leaving restores cast');
+    await page.locator('#leave').click();await waitForCharacterArt();assert(await page.locator('#people [data-person]:visible').count()===people.length,'Leaving restores cast');
+    assert((await actor.locator('img').getAttribute('src'))===idleSource,'Leaving restores exploration artwork: '+id);
+    assert((await actor.getAttribute('data-pose'))===(activity?'activity':'portrait'),'Leaving restores exploration pose: '+id);
    }
    const boxes=await page.locator('#people [data-person]').evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().toJSON()));
    boxes.sort((a,b)=>a.left-b.left);assert(boxes.every((box,i)=>i===0||boxes[i-1].right<=box.left),'Scene portraits must not overlap: '+place+' chapter '+chapter+' viewport '+viewport.width);
-   if(place==='hotel'||place==='rooftop')await page.screenshot({path:'screenshots/'+place+'-'+viewport.width+'-scene.png'});
+   if(!photographed.has(place)){await page.screenshot({path:'screenshots/'+place+'-chapter-'+chapter+'-'+viewport.width+'-scene.png'});photographed.add(place)}
   }
+  assert(photographed.size===9,'Every location has exploration evidence at viewport '+viewport.width);
  }
  assert(seen.size===30,'Every illustrated character must decode and be selectable');
+ assert(seenActivities.size===12,'Every activity illustration must decode, become a portrait, and return to the scene');
  await page.setViewportSize({width:1440,height:900});
  await page.evaluate(s=>localStorage.setItem('the-hundred-story-v3',JSON.stringify(s)),snapshots[2]);await page.reload({waitUntil:'networkidle'});await page.locator('#resume').click();
  await page.locator('#save').click();await page.locator('[data-save-slot="1"]').click();
@@ -79,5 +104,5 @@ async page => {
  await page.screenshot({path:'screenshots/campaign-desktop-focus.png'});
  await page.setViewportSize({width:390,height:667});await page.screenshot({path:'screenshots/campaign-mobile-focus.png',fullPage:true});
  assert(errors.length===0,'No JavaScript errors: '+errors.join('; '));
- return{passed:true,chapters:5,endings:3,locations:9,characters:seen.size,viewports:3,saveSlots:true,history:true,textSpeed:true,audioContext:true,pageErrors:errors};
+ return{passed:true,chapters:5,endings:3,locations:9,characters:seen.size,activities:seenActivities.size,viewports:3,groundDepths:true,feetClearDialogue:true,saveSlots:true,history:true,textSpeed:true,audioContext:true,pageErrors:errors};
 }

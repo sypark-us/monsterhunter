@@ -1,5 +1,5 @@
 {
-  "version": "0.4",
+  "version": "0.4.1",
   "created": "2026-10-10",
   "provenance": "Original images generated with the built-in image generation tool for The Hundred; fictional characters and environments.",
   "assets": [
@@ -314,6 +314,102 @@
       "height": 940,
       "sha256": "e93df8e12e2df808e3b710f178d63d8756df319df9380038c00bc1368431b03e",
       "bytes": 2966921
+    },
+    {
+      "file": "assets/characters/scene/ada.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "e44da90481215e5b4ab7efbea2ebd19208cb72ec87fd6ff764b5db94f82b7157",
+      "bytes": 1828819
+    },
+    {
+      "file": "assets/characters/scene/celia.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "fc4fd83be1aa93541e3d7007dfb5bf554d18b02760c0a14a446ba338ce7e91d4",
+      "bytes": 1482451
+    },
+    {
+      "file": "assets/characters/scene/daniel.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "d52a91fa448561dfd4af593b22f7132381c912b77a9f1108c17d1ee550761698",
+      "bytes": 1387061
+    },
+    {
+      "file": "assets/characters/scene/iris.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "a9590efef0acf47688dd2682cffd68bfa74fc3b0ac5265176c8c1919c2ff9270",
+      "bytes": 2201867
+    },
+    {
+      "file": "assets/characters/scene/jun.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "12877ae7d0e97484c2314af0ec0a6f147afdab3debe1f8a90fc5c7d963bca889",
+      "bytes": 1556023
+    },
+    {
+      "file": "assets/characters/scene/keira.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "b4f6b358f4b0ee9f347466c9ee8104b75301b9bcc22f10c1060d94466cd88b6e",
+      "bytes": 1838846
+    },
+    {
+      "file": "assets/characters/scene/marcus.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "c63cbd7657d1773469e77808a3be5ad3f2457245f20b5be9cbdc60ca007b5c78",
+      "bytes": 1560506
+    },
+    {
+      "file": "assets/characters/scene/mei.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "2a896260afe6737253200109bf484e38135731bb6a4df7b695127ea1088a168c",
+      "bytes": 1443410
+    },
+    {
+      "file": "assets/characters/scene/owen.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "7ea65a9f01736b0bad9f920101f67df70eefc62864d6fd09d83a81f184cd3eff",
+      "bytes": 2343976
+    },
+    {
+      "file": "assets/characters/scene/sora.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "0c5e1e8c9f16eb3d32694c3aecdb54cdc16a57b75a1c676935b5486dcaec3368",
+      "bytes": 2071456
+    },
+    {
+      "file": "assets/characters/scene/vincent.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "b616553a917d149157449556789ada08c2bba8cc2559a3dc0edf12012df026ac",
+      "bytes": 2151875
+    },
+    {
+      "file": "assets/characters/scene/yuen.png",
+      "kind": "fictional character activity cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "2507eb257467a88aae59215b1a2038aeae79d24b63009fafd1feded14af26af3",
+      "bytes": 1992955
     }
   ]
 }

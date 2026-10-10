@@ -45,7 +45,9 @@
 @media(max-width:720px){.viewport{min-height:0}.dialogue{min-height:180px}.stage:has([data-mode="conversation"]) .objective{display:none}.characterLine[data-mode="conversation"]{top:120px}}
 /* Exploration coordinates belong to the floor plane, independent of dialogue. */
 .characterLine[data-mode="scene"]{inset:0;bottom:0!important}
-.characterLine[data-mode="scene"] .actor{bottom:calc(100% - var(--ground-y));width:min(var(--scene-scale),calc(70cqw / var(--cast-count)));z-index:2}
+.characterLine[data-mode="scene"] .actor{bottom:max(calc(100% - var(--ground-y)),var(--scene-panel-clearance,0px));width:min(var(--scene-scale),18cqw);min-width:44px;z-index:var(--scene-order)}
+.characterLine[data-mode="scene"] .portrait-crop{aspect-ratio:var(--scene-aspect)}
+.characterLine[data-mode="scene"] .portrait-crop img{height:auto}
 .characterLine[data-mode="scene"] .actor::before{content:"";position:absolute;left:28%;right:28%;bottom:0;height:3%;border-radius:50%;background:#02060980;filter:blur(5px);z-index:-1}
 .stage:has([data-mode="scene"]) .dialogue{min-height:0;max-height:145px;background:#080c16db}
 .stage:has([data-mode="scene"]) .dialogue .top{padding:8px 14px 0}
@@ -54,4 +56,22 @@
 .stage:has([data-mode="scene"]) .choices{padding:0 14px 7px}
 .stage:has([data-mode="scene"]) .muted{font-size:11px;margin:2px 0}
 .stage:has([data-mode="scene"]) .choices button{font-size:11px;padding:5px 8px}
-@media(max-width:720px){.characterLine[data-mode="scene"] .actor{bottom:28%;width:min(27cqh,calc(70cqw / var(--cast-count)))}.characterLine[data-mode="scene"] .actor .name{font-size:8px;padding:3px}.stage:has([data-mode="scene"]) .dialogue{max-height:125px}}
+@media(max-width:720px){.characterLine[data-mode="scene"] .actor{left:var(--mobile-x);bottom:max(calc(100% - var(--mobile-ground)),var(--scene-panel-clearance,0px));width:min(var(--mobile-scale),23cqw)}.characterLine[data-mode="scene"] .actor .name{font-size:8px;padding:3px}.stage:has([data-mode="scene"]) .dialogue{max-height:125px}}
+
+/* Short screens retain a usable floor below the compact location heading. */
+@media(max-width:360px){.objective{top:118px}}
+@media(max-height:500px) and (max-width:900px){
+ header{min-height:0;padding:6px 10px;gap:4px 12px;flex-wrap:wrap}
+ .brand h1{font-size:17px}.brand small{display:none}
+ .menu{flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto}.menu>*{flex-shrink:0}
+ .status{order:3;width:100%;justify-content:space-between;padding:0 4px}
+ .status div{flex-direction:row;align-items:center;gap:8px}.status label{font-size:8px}.status strong{font-size:11px}
+ .travel{left:8px;right:auto;top:8px;width:110px;max-height:calc(100% - 16px);overflow:auto}
+ .travel label{display:none}#locations{display:block}.travel button{width:100%;height:45px;margin:0 0 5px}
+ .location{left:132px;top:10px;padding:4px 9px}.location strong{font-size:14px}
+ .objective{left:143px;top:60px;right:12px;font-size:10px}
+ .dialogue{left:132px;right:8px;bottom:8px;min-height:0;max-height:40%}
+ .stage:has([data-mode="scene"]) .dialogue{max-height:92px}.stage:has([data-mode="scene"]) .muted{display:none}
+ .characterLine[data-mode="scene"] .actor{left:var(--scene-x);width:min(var(--mobile-scale),18cqw)}
+ .characterLine[data-mode="conversation"]{top:76px;left:132px;right:8px}
+}

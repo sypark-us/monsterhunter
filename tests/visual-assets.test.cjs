@@ -56,3 +56,14 @@ test('all thirty campaign characters have independent high-resolution transparen
  }
  assert.equal(new Set(Object.keys(Campaign.cast).map(Visuals.portrait)).size,30);
 });
+
+test('all activity poses are separate transparent images with unchanged dialogue portrait mappings',()=>{
+ const Staging=require('../src/scene-staging.js');
+ for(const id of Object.keys(Staging.activities)){
+  const file=path.join(__dirname,'../assets/characters/scene',id+'.png'),bytes=fs.readFileSync(file);
+  assert.equal(bytes.subarray(1,4).toString(),'PNG');
+  assert.ok(bytes.readUInt32BE(16)>=1024,id+' activity width');assert.ok(bytes.readUInt32BE(20)>=1536,id+' activity height');
+  assert.equal(bytes[25],6,id+' activity requires RGBA');
+  assert.equal(Visuals.portrait(id).split('?')[0],'assets/characters/'+id+'.png');
+ }
+});

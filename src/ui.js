@@ -2,7 +2,7 @@
 (function(){
   'use strict';
   const $=id=>document.getElementById(id);
-  const Story=window.HundredCampaign,Engine=window.HundredEngine,Visuals=window.HundredVisuals;
+  const Story=window.HundredCampaign,Engine=window.HundredEngine,Visuals=window.HundredVisuals,Staging=window.HundredStaging;
   const SAVE_KEY='the-hundred-story-v3';
   const audio=window.HundredAudio.create();
   let preferences={music:.35,ambience:.18,speed:0};
@@ -20,13 +20,14 @@
     const stage=document.querySelector('.stage').getBoundingClientRect();
     const panel=document.querySelector('.dialogue').getBoundingClientRect();
     $('people').style.bottom=$('people').dataset.mode==='conversation'?Math.ceil(stage.bottom-panel.top+16)+'px':'0px';
+    $('people').style.setProperty('--scene-panel-clearance',Math.ceil(stage.bottom-panel.top+10)+'px');
     document.querySelector('.viewport').style.height='calc(100dvh - '+document.querySelector('header').offsetHeight+'px)';
   }
   const layoutObserver=new ResizeObserver(reserveDialogueSpace);
   layoutObserver.observe(document.querySelector('.dialogue'));layoutObserver.observe(document.querySelector('header'));
   window.addEventListener('resize',reserveDialogueSpace);
   const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  if(!Story||!Engine||!Visuals){
+  if(!Story||!Engine||!Visuals||!Staging){
     $('fatal').classList.remove('hidden');
     $('fatal').textContent='Some game files could not be loaded. Please refresh this page.';
     return;
@@ -87,14 +88,12 @@
       image.onerror=()=>{if(!triedRemote){triedRemote=true;image.src=Visuals.scenes[button.dataset.place]||Visuals.photoSources(button.dataset.place)[0]}else image.style.visibility='hidden'};
     });
     $('people').dataset.mode=view.dialogue?'conversation':'scene';
-    $('people').style.setProperty('--cast-count',view.characters.length);
     $('people').innerHTML=view.characters.map(id=>{
       const p=Story.cast[id],active=view.dialogue?.id===id;
-      const index=view.characters.indexOf(id),count=view.characters.length;
-      const positions=count===1?[58]:count===2?[33,73]:count===3?[27,52,77]:[22,43,64,85];
-      const x=positions[index]||50,ground=82+(index%2?3:0),width=23;
-      const scale=(ground-45)/.9*2/3;
-      return '<button type="button" class="actor '+(active?'selected':'')+'" data-person="'+id+'" style="--scene-x:'+x+'%;--ground-y:'+ground+'%;--scene-scale:'+scale+'cqh;--scene-depth:0px;--actor-width:'+width+'%" '+(view.dialogue&&!active?'hidden ':'')+(state.outcome?'disabled':'')+' aria-label="Talk to '+escapeHtml(p.name)+'"><span class="portrait-crop"><img data-art="individual" src="'+Visuals.portrait(id)+'" alt="" draggable="false"></span><span class="name">'+escapeHtml(p.name)+'</span></button>';
+      const placement=Staging.actor(view.place,id),[x,y,height]=placement.desktop,[mx,my,mheight]=placement.mobile;
+      const art=view.dialogue?Visuals.portrait(id):(placement.art||Visuals.portrait(id));
+      const activity=!view.dialogue&&placement.activity?' — '+placement.activity:'';
+      return '<button type="button" class="actor '+(active?'selected':'')+'" data-person="'+id+'" data-pose="'+(!view.dialogue&&placement.art?'activity':'portrait')+'" style="--scene-x:'+x+'%;--ground-y:'+y+'%;--scene-scale:'+(height*2/3)+'cqh;--mobile-x:'+mx+'%;--mobile-ground:'+my+'%;--mobile-scale:'+(mheight*2/3)+'cqh;--scene-order:'+placement.depth+';--scene-aspect:'+placement.aspect+';--scene-depth:0px;--actor-width:23%" '+(view.dialogue&&!active?'hidden ':'')+(state.outcome?'disabled':'')+' aria-label="Talk to '+escapeHtml(p.name+activity)+'"><span class="portrait-crop"><img data-art="individual" src="'+art+'" alt="" draggable="false"></span><span class="name">'+escapeHtml(p.name)+'</span></button>';
     }).join('');
     $('people').querySelectorAll('[data-person]').forEach(button=>{
       button.onclick=()=>apply(Engine.approach(state,button.dataset.person));
@@ -173,7 +172,7 @@
   if(saveAvailable)$('resume').classList.remove('hidden');
   // Decode an individual sprite before declaring the artwork ready.
   const proof=new Image();proof.src=Visuals.portrait('ada');
-  proof.onload=()=>{document.body.dataset.paintedCast=proof.naturalWidth+'x'+proof.naturalHeight;document.body.dataset.build='0.4'};
+  proof.onload=()=>{document.body.dataset.paintedCast=proof.naturalWidth+'x'+proof.naturalHeight;document.body.dataset.build='0.4.1'};
   proof.onerror=()=>{document.body.dataset.paintedCast='error';toast('The character artwork could not be decoded.')};
   render();
   $('intro').showModal();
