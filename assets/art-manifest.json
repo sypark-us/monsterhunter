@@ -1,0 +1,319 @@
+{
+  "version": "0.4",
+  "created": "2026-10-10",
+  "provenance": "Original images generated with the built-in image generation tool for The Hundred; fictional characters and environments.",
+  "assets": [
+    {
+      "file": "assets/characters/aaron.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "a984ef31c864697e9e05a0e3a7657c192fe728f334060edee30abd88f21f311d",
+      "bytes": 1713383
+    },
+    {
+      "file": "assets/characters/ada.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "52ce94929f4f939f4304a5275c8e7cf479cb12ced0f819be8d72db8f57405726",
+      "bytes": 1442361
+    },
+    {
+      "file": "assets/characters/anita.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "b9649a819620928d7d596fe8de6c77bdb973aebb219497e45753a2c30700d537",
+      "bytes": 1395302
+    },
+    {
+      "file": "assets/characters/bo.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "866483bb0a3d54e0db2303c4c5a712cfb5a60d2aa85111140b9995860622c02d",
+      "bytes": 1673193
+    },
+    {
+      "file": "assets/characters/celia.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "e4f4d10e18ad1a62d751a6d6e222afc18c669ce1f8467ea2b4456053bca61815",
+      "bytes": 1320418
+    },
+    {
+      "file": "assets/characters/cheng.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "b5811b502a6a72ba6fd68af8135c2d262a9562c5ac62b3721ec306cfba8694c8",
+      "bytes": 1757660
+    },
+    {
+      "file": "assets/characters/daniel.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "8cda2f015e7a4cf2a6292d0abc5ac4f2d69ee2be3eaf18c64a1369c545e0206a",
+      "bytes": 1494105
+    },
+    {
+      "file": "assets/characters/eunice.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "80f4448833b62cc1488a12997b6bb769f5c0e9df045a66323f7996a27b3f1f9c",
+      "bytes": 1487294
+    },
+    {
+      "file": "assets/characters/fong.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "79751a094f25b7fed9c44cdbf599f9224ef6b6aa02cfdb30d084c722551c030d",
+      "bytes": 1558106
+    },
+    {
+      "file": "assets/characters/grace.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "b7c827776d68a801d9fcd3315fab1fb90c1db141e0f217053f41182c290a9d24",
+      "bytes": 1780194
+    },
+    {
+      "file": "assets/characters/henry.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "af87316027a034ad57638b1ca7e5928b24fc044877ba5c8984c7aa6eacb2ec7b",
+      "bytes": 1429741
+    },
+    {
+      "file": "assets/characters/iris.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "1103dab802fdf288ad111ead6f919e61ffcfc963e81028fc4860a7b6d65a84ec",
+      "bytes": 1676144
+    },
+    {
+      "file": "assets/characters/jun.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "b8de9656639831b9cd823b8c944edd6da507894e1b9426ba5169d4185ab9d6eb",
+      "bytes": 1544727
+    },
+    {
+      "file": "assets/characters/keira.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "2d1ea67dab84f12e7fd6295f58e3f984dae34c480e233b2601bb966efd433cee",
+      "bytes": 1406868
+    },
+    {
+      "file": "assets/characters/kit.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "95e78f4a51dfe4a1f9c786b944f640b49cc76bcd139b575d5cff072c47141f5b",
+      "bytes": 1392052
+    },
+    {
+      "file": "assets/characters/leung.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "58b1d0580bda0c92031ea3d03fccacc9cb045742341c4efbcdabee8f921bcdaf",
+      "bytes": 1512322
+    },
+    {
+      "file": "assets/characters/lily.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "5bfe972c88342d2906d530689b95fa2f8e2a8f8ffb766371c4255c06a6563f2e",
+      "bytes": 1768512
+    },
+    {
+      "file": "assets/characters/marcus.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "88f9b9d5940e47be1eeb9534dd5fb2b8cbef2f6e1766cf3e699d6666777367a2",
+      "bytes": 1525511
+    },
+    {
+      "file": "assets/characters/mei.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "bcdf7c9663a902badc1b12b50d3ea4720fefdc91d63797e1cede04282391a4b9",
+      "bytes": 1422990
+    },
+    {
+      "file": "assets/characters/ming.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "e0dc8b35da5380b97b7a6eb92afe3d61cb8dada49cd05d7f7e499f30f05b4fed",
+      "bytes": 1577301
+    },
+    {
+      "file": "assets/characters/nora.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "31e417232d397774b6ab4c4992fd6b8f82aeb963ca6e38ef8164b5170d7444e2",
+      "bytes": 1432965
+    },
+    {
+      "file": "assets/characters/owen.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "d106ae7e97eb7bd1c2f210daac6244c7fa575bef1f6c6d465f0fcc8a9ff349e3",
+      "bytes": 1730140
+    },
+    {
+      "file": "assets/characters/patrick.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "6744c42ce70187db75c1b8379a9a8020d846da95bffa3d46a57b19c4cecb24fd",
+      "bytes": 1516255
+    },
+    {
+      "file": "assets/characters/ruth.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "aed5d033bea32918a70a93355508c721091202685006cd000d25b9c19813917a",
+      "bytes": 1324758
+    },
+    {
+      "file": "assets/characters/sam.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "a3b3619f460eeb612e6d78e3a747b6435e14f33e7c0275a543077d51445d0395",
+      "bytes": 1559515
+    },
+    {
+      "file": "assets/characters/sora.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "f62a2ddb85fe3aaa268481cc0c3f1b196ffab4b9042ed1aa8e080aff5433b624",
+      "bytes": 1508896
+    },
+    {
+      "file": "assets/characters/tessa.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "16aed1c3f32fc225e989268072529cc19bcca31d292f22a5ba8c295f2ecb4cf8",
+      "bytes": 1405912
+    },
+    {
+      "file": "assets/characters/vincent.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "7687253998fc3f6fdf88052f46c7b8de4ec191f6c7abd6a33c61d376bd0b84df",
+      "bytes": 1425791
+    },
+    {
+      "file": "assets/characters/wai.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "4f1fb6acc1c92223d0073bed1d145712cdd04fa8abe03287ed0d7bfef2c0014e",
+      "bytes": 1436086
+    },
+    {
+      "file": "assets/characters/yuen.png",
+      "kind": "fictional character cutout",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "e3c347417c28be3a9a36a9786019cf0a03caf938ca78df38e7c7146c7430a498",
+      "bytes": 1442304
+    },
+    {
+      "file": "assets/backgrounds/apartment.png",
+      "kind": "fictional environment",
+      "width": 1672,
+      "height": 941,
+      "sha256": "c86861fdeb2b4958e37ac1d5cb7e30f5be17a5486b4fdb0abe8bf5576cd4338e",
+      "bytes": 2574590
+    },
+    {
+      "file": "assets/backgrounds/clinic.png",
+      "kind": "fictional environment",
+      "width": 1672,
+      "height": 941,
+      "sha256": "d9084fb268df0203ee79cc168b3f890a48d386a3b6b5a4d6ba9409dd4b4c362a",
+      "bytes": 2121759
+    },
+    {
+      "file": "assets/backgrounds/diner.png",
+      "kind": "fictional environment",
+      "width": 1672,
+      "height": 941,
+      "sha256": "7d7e35dd3812e51eb8a4020e81540b493d5ad3615f9691f14150b9dd6f282f62",
+      "bytes": 2515399
+    },
+    {
+      "file": "assets/backgrounds/hotel.png",
+      "kind": "fictional environment",
+      "width": 1672,
+      "height": 941,
+      "sha256": "4f759ed5ed76daa825f1a05e293865851bd2dccb59cd4e492cd37f2d8d667b3d",
+      "bytes": 2764467
+    },
+    {
+      "file": "assets/backgrounds/market.png",
+      "kind": "fictional environment",
+      "width": 1672,
+      "height": 941,
+      "sha256": "24cb1f29da8e917f5cccf2300310f471d24a8ad5ae738f2baf606b5fbaf609bd",
+      "bytes": 3035658
+    },
+    {
+      "file": "assets/backgrounds/pier.png",
+      "kind": "fictional environment",
+      "width": 1672,
+      "height": 941,
+      "sha256": "765770a7047f0e7adb9eaaafc431ce583908b1434fa6c3620f11935e0101b1ab",
+      "bytes": 2838783
+    },
+    {
+      "file": "assets/backgrounds/rooftop.png",
+      "kind": "fictional environment",
+      "width": 1672,
+      "height": 941,
+      "sha256": "22a4c5ef1cd4f70640694af922aa73ced49fb9a9cbb161be975788c2fed77a48",
+      "bytes": 2704318
+    },
+    {
+      "file": "assets/backgrounds/shrine.png",
+      "kind": "fictional environment",
+      "width": 1672,
+      "height": 941,
+      "sha256": "75d6d715bdd4497e06f94b10885137be0af523bc65f7cb69a1e953a2faeea30f",
+      "bytes": 3049832
+    },
+    {
+      "file": "assets/backgrounds/street.png",
+      "kind": "fictional environment",
+      "width": 1672,
+      "height": 940,
+      "sha256": "e93df8e12e2df808e3b710f178d63d8756df319df9380038c00bc1368431b03e",
+      "bytes": 2966921
+    }
+  ]
+}

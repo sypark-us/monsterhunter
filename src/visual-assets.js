@@ -8,7 +8,7 @@
   root.HundredVisuals=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(root){
   'use strict';
-  const VERSION='0.3';
+  const VERSION='0.4';
   const photos={
     apartment:{id:20434544,author:'terry narcissan tsui',title:'Stairs on a Staircase in Shadow',page:'https://www.pexels.com/photo/stairs-on-a-staircase-in-shadow-20434544/',position:'50% 52%',download:'https://images.pexels.com/photos/20434544/pexels-photo-20434544.jpeg?cs=srgb&dl=pexels-narcissan-20434544.jpg&fm=jpg'},
     street:{id:7287145,author:'Jimmy Chan',title:'Neon Signs on the Street at Night',page:'https://www.pexels.com/photo/neon-signs-on-the-street-at-night-7287145/',position:'50% 46%',download:'https://images.pexels.com/photos/7287145/pexels-photo-7287145.jpeg?cs=srgb&dl=pexels-jimbear-7287145.jpg&fm=jpg'},
@@ -25,15 +25,19 @@
   const encoded=parts.join('');
   const atlas='data:image/avif;base64,'+encoded;
   const scenes=Object.fromEntries(Object.entries(photos).map(([key,p])=>[key,'https://images.pexels.com/photos/'+p.id+'/pexels-photo-'+p.id+'.jpeg?auto=compress&cs=tinysrgb&w=1600']));
+  const portraits=Object.freeze(Object.fromEntries(['ada','keira','iris','vincent','marcus','daniel','yuen','mei','celia','owen','jun','sora','eunice','leung','cheng','wai','anita','sam','grace','henry','bo','tessa','patrick','lily','ming','aaron','nora','kit','ruth','fong'].map(id=>[id,'assets/characters/'+id+'.png?v='+VERSION])));
+  function portrait(id){if(!Object.hasOwn(portraits,id))throw new Error('Unknown portrait: '+id);return portraits[id]}
+  const generatedPlaces=['apartment','street','diner','hotel','shrine','clinic','market','pier','rooftop'];
   function frame(id){
     if(!Object.prototype.hasOwnProperty.call(frames,id))throw new Error('Unknown portrait: '+id);
     return frames[id];
   }
   function photoSources(place){
+    if(generatedPlaces.includes(place))return ['assets/backgrounds/'+place+'.png?v='+VERSION];
     if(!photos[place])throw new Error('Unknown scene: '+place);
     const p=photos[place];
     // Pages builds bundle photographs locally. Direct checkouts can use the CDN.
     return Array.from(new Set(['assets/backgrounds/'+place+'.jpg?v='+VERSION,scenes[place],p.download||'https://images.pexels.com/photos/'+p.id+'/pexels-photo-'+p.id+'.jpeg']));
   }
-  return Object.freeze({VERSION,photos,scenes,frames,atlas,encoded,frame,photoSources,atlasWidth:1152,atlasHeight:768,atlasSha256:'a3daf89c9e373f907ce9adeadd169b60cf37530b3abbaa259d168ea74b2fa5e8'});
+  return Object.freeze({VERSION,photos,scenes,portraits,portrait,generatedPlaces,frames,atlas,encoded,frame,photoSources,atlasWidth:1152,atlasHeight:768,atlasSha256:'a3daf89c9e373f907ce9adeadd169b60cf37530b3abbaa259d168ea74b2fa5e8'});
 });

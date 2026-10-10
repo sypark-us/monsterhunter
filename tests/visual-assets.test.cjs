@@ -23,25 +23,36 @@ test('seven different characters map to the correct individual sheet cells',()=>
   assert.deepEqual(Visuals.frame('yuen'),{column:2,row:1});
   assert.throws(()=>Visuals.frame('unknown'));
 });
-test('every location has a credited photograph with a bundled local first choice',()=>{
+test('every location has a credited photograph with a generated local background',()=>{
   for(const place of Object.keys(Story.places)){
     assert.ok(Visuals.photos[place].author);
     assert.match(Visuals.photos[place].page,/^https:\/\/www\.pexels\.com\/photo\//);
-    assert.match(Visuals.photoSources(place)[0],new RegExp('^assets/backgrounds/'+place+'\\.jpg'));
+    assert.match(Visuals.photoSources(place)[0],new RegExp('^assets/backgrounds/'+place+'\\.png'));
     assert.match(Visuals.scenes[place],/^https:\/\/images\.pexels\.com\//);
   }
 });
 test('live game loads real raster art and no longer calls the vector character generator',()=>{
   const html=read('index.html'),ui=read('src/ui.js'),css=read('src/visual-novel.css');
-  assert.match(html,/PHOTO \+ PAINTED/);
+  assert.match(html,/THE CAMPAIGN/);
   for(let i=0;i<4;i++)assert.ok(html.includes('assets/cast-part-'+i+'.js?v=0.3'));
   assert.ok(html.indexOf('cast-part-3.js')<html.indexOf('src/visual-assets.js'));
-  assert.match(ui,/Visuals\.atlas/);assert.match(ui,/Visuals\.photoSources/);
+  assert.match(ui,/Visuals\.portrait/);assert.match(ui,/Visuals\.photoSources/);
   assert.doesNotMatch(ui,/Art\.character|Art\.scenes|data:image\/svg/);
-  assert.match(css,/width:400%;height:200%/);
+  assert.match(css,/data-mode="conversation"/);
   assert.doesNotMatch(html,/id="notes"|id="investigate"|<canvas/);
 });
 test('visual selection has no hidden possession or suspicion lookup',()=>{
   const source=read('src/visual-assets.js');
   assert.doesNotMatch(source,/\.possessed|\.cursed|HIDDEN_POSSESSION|\.flags/);
+});
+
+test('all thirty campaign characters have independent high-resolution transparent PNG assets',()=>{
+ const Campaign=require('../src/campaign.js');
+ for(const id of Object.keys(Campaign.cast)){
+  const file=Visuals.portrait(id).split('?')[0],bytes=fs.readFileSync(path.join(__dirname,'..',file));
+  assert.equal(bytes.subarray(1,4).toString(),'PNG');
+  assert.ok(bytes.readUInt32BE(16)>=1024,id+' width');assert.ok(bytes.readUInt32BE(20)>=1536,id+' height');
+  assert.equal(bytes[25],6,id+' requires RGBA');
+ }
+ assert.equal(new Set(Object.keys(Campaign.cast).map(Visuals.portrait)).size,30);
 });
