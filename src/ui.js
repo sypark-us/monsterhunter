@@ -2,7 +2,7 @@
 (function(){
   'use strict';
   const $=id=>document.getElementById(id);
-  const Story=window.HundredCampaign,Engine=window.HundredEngine,Visuals=window.HundredVisuals,Staging=window.HundredStaging;
+  const Story=window.HundredCampaign,Engine=window.HundredEngine,Visuals=window.HundredVisuals,Staging=window.HundredStaging,Guidance=window.HundredGuidance;
   const SAVE_KEY='the-hundred-story-v3';
   const audio=window.HundredAudio.create();
   let preferences={music:.35,ambience:.18,speed:0};
@@ -44,7 +44,7 @@
   layoutObserver.observe(document.querySelector('.dialogue'));layoutObserver.observe(document.querySelector('header'));
   window.addEventListener('resize',reserveDialogueSpace);
   const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  if(!Story||!Engine||!Visuals||!Staging){
+  if(!Story||!Engine||!Visuals||!Staging||!Guidance){
     $('fatal').classList.remove('hidden');
     $('fatal').textContent='Some game files could not be loaded. Please refresh this page.';
     return;
@@ -88,13 +88,15 @@
     attempt(0);
   }
   function render(){
-    const view=Engine.publicState(state);
+    const view=Engine.publicState(state),guide=Guidance.describe(state);
     $('chapterLabel').textContent='CHAPTER '+String(view.chapter).padStart(2,'0');
     $('chapterTitle').textContent=view.chapterTitle.toUpperCase();
     $('dayLabel').textContent='DAY '+view.chapter+' · AFTER DARK';
-    $('objective').textContent=view.objective;
+    $('objective').textContent='Next lead: '+guide.next.text;
     audio.setScene(view.place,!!view.dialogue);
     $('clock').textContent=view.time;$('money').textContent='HK$'+view.cash;
+    $('deadline').textContent='Until '+view.deadline;
+    $('deadline').title=view.remainingMinutes+' minutes remain. Reading does not advance time.';
     $('energy').textContent=view.energy+'/100';$('placeName').textContent=Story.places[view.place].name;
     setPhoto(view.place);
     $('locations').innerHTML=Object.entries(Story.places).filter(([id])=>Story.chapter(state.chapter).people[id]).map(([id,place])=>
@@ -118,15 +120,16 @@
       button.querySelector('img').onerror=()=>toast('Character artwork did not decode. Please use a current browser and refresh.');
     });
     $('speaker').textContent=view.dialogue?.speaker||'THE CITY';
+    $('speakerRole').textContent=view.dialogue?Story.cast[view.dialogue.id].role:'';
     showLine(view.dialogue?.line||view.sceneText||Story.places[view.place].description);
     $('choiceTitle').textContent=view.dialogue?'HOW DO YOU RESPOND?':'CLICK SOMEONE TO TALK';
     const options=$('options');
     if(view.dialogue){
-      options.innerHTML=view.options.map((option,i)=>'<button type="button" data-choice="'+escapeHtml(option.id)+'"><span class="optionNum">'+(i+1)+'</span>'+escapeHtml(option.label)+(option.warning?'<span class="sub">'+escapeHtml(option.warning)+'</span>':'')+'</button>').join('')+'<button type="button" id="leave"><span class="optionNum">←</span>End conversation</button>';
+      options.innerHTML=view.options.map((option,i)=>'<button type="button" data-choice="'+escapeHtml(option.id)+'"><span class="optionNum">'+(i+1)+'</span>'+escapeHtml(option.label)+'<span class="action-cost">'+escapeHtml(costLabel(option.cost))+'</span>'+(option.warning?'<span class="sub">'+escapeHtml(option.warning)+'</span>':'')+'</button>').join('')+(view.options.length?'':'<p class="muted">Nothing more to ask for now. Conversations elsewhere may open new replies here.</p>')+'<button type="button" id="leave"><span class="optionNum">←</span>End conversation <span class="action-cost">No time cost</span></button>';
       options.querySelectorAll('[data-choice]').forEach(button=>button.onclick=()=>apply(Engine.choose(state,button.dataset.choice)));
       $('leave').onclick=()=>apply(Engine.leave(state));
     }else{
-      options.innerHTML='<p class="muted">Choose anyone in the scene. No one is marked dangerous or safe.</p>'+(state.place==='apartment'?'<button type="button" id="rest">Rest for an hour (+32 energy)</button>':'');
+      options.innerHTML='<p class="muted">Click a person to speak. New information can open replies with people you have already met.</p>'+(state.place==='apartment'?'<button type="button" id="rest">Rest for 65 minutes (+'+Math.min(32,100-state.energy)+' energy)</button>':'');
       if($('rest'))$('rest').onclick=()=>apply(Engine.sleep(state));
     }
     $('whisper').textContent=view.whisper||'';$('whisper').classList.toggle('hidden',!view.whisper);
@@ -138,7 +141,7 @@
     if(!state.outcome)return;
     const victory=state.outcome==='victory',final=state.outcome?.startsWith('ending:');
     const ending=final?Story.endings[state.outcome.slice(7)]:null;
-    const title=ending?.title||(victory?(state.chapter===5?'THE CONTEST IS BROKEN':'CHAPTER COMPLETE'):'YOUR HOST IS LOST');
+    const title=ending?.title||(victory?(state.chapter===5?'THE CONTEST IS BROKEN':'CHAPTER COMPLETE'):'YOUR LIFE IS LOST');
     panel.innerHTML='<span class="build">'+(final?'CAMPAIGN COMPLETE':victory?'CHAPTER '+state.chapter+' COMPLETE':'GAME OVER')+'</span><h2>'+escapeHtml(title)+'</h2><p>'+escapeHtml(ending?.text||state.sceneText)+'</p>'+
       (victory?'<p class="small">'+escapeHtml(state.cash>=state.rentDue?'Tomorrow’s rent is covered.':'Tomorrow’s rent is not covered. Continuing will strain your human life.')+'</p><p class="small">Choose how the absorbed power changes you.</p><div class="upgrade">'+Object.keys(state.stats).map(key=>'<button type="button" data-stat="'+key+'" '+(state.points<=0?'disabled':'')+'>'+escapeHtml(key.toUpperCase())+' '+state.stats[key]+' → '+(state.stats[key]+1)+'</button>').join('')+'</div><p class="small">Available points: '+state.points+'</p>'+ (state.chapter<5?'<button type="button" id="continueChapter">Continue to '+escapeHtml(Story.chapter(state.chapter+1).title)+'</button>':'<div class="final-choices">'+Object.entries(Story.endings).map(([id,e])=>'<button type="button" data-ending="'+id+'" '+(!Engine.finish(state,id).ok?'disabled':'')+'>'+escapeHtml(e.title)+'</button>').join('')+'</div>'):'')+
       '<button type="button" id="playAgain">Start a new campaign</button>';
@@ -148,6 +151,28 @@
     $('playAgain').onclick=()=>{state=Engine.newGame();persist();render()};
   }
   function openPanel(title,body){$('panelTitle').textContent=title;$('panelBody').innerHTML=body;$('playerPanel').showModal()}
+  function costLabel(cost){
+    const parts=[cost.minutes+' min'];
+    if(cost.cash)parts.push((cost.cash>0?'+':'−')+'HK$'+Math.abs(cost.cash));
+    if(cost.energy)parts.push((cost.energy>0?'+':'−')+Math.abs(cost.energy)+' energy');
+    return parts.join(' · ');
+  }
+  function storyHelp(){
+    const guide=Guidance.describe(state),view=Engine.publicState(state);
+    const time=Math.floor(view.remainingMinutes/60)+'h '+view.remainingMinutes%60+'m';
+    openPanel('Story & Help',`
+      <p class="story-chapter">Chapter ${view.chapter} · ${escapeHtml(view.chapterTitle)}</p>
+      <p>${escapeHtml(guide.goal)}</p>
+      <section class="story-lead"><h3>A useful next conversation</h3><p>${escapeHtml(guide.next.text)}</p><p>${escapeHtml(guide.next.reason)}</p></section>
+      <h3>This chapter</h3><p>${escapeHtml(guide.opening)}</p>
+      <details class="story-controls"><summary>Your situation</summary><p>${escapeHtml(guide.premise)}</p></details>
+      <h3>What your voice remembers</h3><ul class="story-rules">${guide.rules.map(rule=>'<li>'+escapeHtml(rule)+'</li>').join('')}</ul>
+      <h3>Time and your ordinary life</h3>
+      <p>${time} remains until ${view.deadline}. The clock waits while you read, look around, or open this panel. Talking to someone and ending a conversation are free. Choosing a reply normally takes 8 minutes and 2 energy; each reply shows its exact cost. Travel takes 15 minutes and 1 energy.</p>
+      <p>Rest at the apartment or buy food at Keira’s Tea Stall to recover energy. Work at her stall for money. HK$120 rent is collected between chapters; falling short strains your connection to ordinary life.</p>
+      <p>What you hear can open new replies with people you have already met. History lets you reread their exact words. A new option means you can say something new; it does not prove someone is dangerous.</p>
+      <details class="story-controls"><summary>Controls and abilities</summary><p>Choose a location, then click a person in the scene. Choose a reply or press its number. End conversation or press Escape to return to the location. Click dialogue text to reveal it immediately.</p><p>After completing a chapter, spend your demon point: Sense notices warnings and hidden sounds; Intelligence reveals contradictions and clauses; Charisma opens persuasive approaches; Dominion enables forceful supernatural choices. Relationships can unlock different conversations too.</p></details>`);
+  }
   function saveMenu(){
     openPanel('Save & Resume','<p>Autosave follows your current story. Keep a separate slot before a difficult choice.</p>'+[1,2,3].map(slot=>{
       let saved;try{saved=JSON.parse(localStorage.getItem('hundred-slot-'+slot)||'null')}catch{}
@@ -178,7 +203,7 @@
   $('resume').onclick=()=>{$('intro').close();$('intro').classList.add('hidden');render()};
   $('save').onclick=()=>{persist();saveMenu()};
   $('restart').onclick=()=>{if(window.confirm('Start a new chapter and replace the current save?')){state=Engine.newGame();persist();render()}};
-  $('help').onclick=()=>toast('Visit a location and click a person to bring them closer. Listen, choose your words, and leave to return to the scene. Your relationships and abilities carry into later chapters. Wrong rituals are fatal.');
+  $('help').onclick=storyHelp;
   $('audio').onclick=toggleSound;$('retryPhoto').onclick=()=>setPhoto(state.place,true);
   $('toast').onclick=()=>$('toast').classList.add('hidden');
   window.addEventListener('keydown',event=>{
@@ -187,10 +212,16 @@
     const n=Number(event.key);
     if(Number.isInteger(n)&&n>=1&&n<=9&&state.dialogue){const option=Engine.options(state)[n-1];if(option)apply(Engine.choose(state,option.id))}
   });
-  if(saveAvailable)$('resume').classList.remove('hidden');
+  if(saveAvailable){
+    const guide=Guidance.describe(state),view=Engine.publicState(state);
+    $('resume').classList.remove('hidden');$('resumeContext').classList.remove('hidden');
+    $('firstLead').hidden=true;$('introStakes').hidden=true;
+    $('begin').textContent='Start a New Campaign';
+    $('resumeContext').innerHTML='<h3>Your saved story · Chapter '+view.chapter+'</h3><p>'+escapeHtml(view.chapterTitle)+' · '+view.time+' / '+view.deadline+'</p><p>'+escapeHtml(guide.next.text)+'</p><p class="intro-hint">Resume to keep your progress. Story &amp; Help contains this chapter’s context and the rules you have learned.</p>';
+  }
   // Decode an individual sprite before declaring the artwork ready.
   const proof=new Image();proof.src=Visuals.portrait('ada');
-  proof.onload=()=>{document.body.dataset.paintedCast=proof.naturalWidth+'x'+proof.naturalHeight;document.body.dataset.build='0.4.2'};
+  proof.onload=()=>{document.body.dataset.paintedCast=proof.naturalWidth+'x'+proof.naturalHeight;document.body.dataset.build='0.4.3'};
   proof.onerror=()=>{document.body.dataset.paintedCast='error';toast('The character artwork could not be decoded.')};
   render();
   $('intro').showModal();

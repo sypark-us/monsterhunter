@@ -5,7 +5,7 @@ async page => {
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
  await page.evaluate(()=>localStorage.clear());await page.reload({waitUntil:'networkidle'});
  await page.setViewportSize({width:1440,height:900});
- await page.waitForFunction(()=>document.body.dataset.build==='0.4.2');
+ await page.waitForFunction(()=>document.body.dataset.build==='0.4.3');
  await page.locator('#begin').click();
  const snapshots={1:await page.evaluate(()=>JSON.parse(localStorage.getItem('the-hundred-story-v3')))};
  const first=['diner','keira','keira_family','keira_guests','keira_oath','keira_work','street','marcus','marcus_oaths','shrine','yuen','yuen_oath','hotel','daniel','daniel_vincent','vincent','vincent_names','vincent_meeting','vincent_keira','vincent_daniel','vincent_press','vincent_cast'];
@@ -21,7 +21,21 @@ async page => {
   else await page.locator('[data-choice="'+id+'"]').click();
  }
  for(let chapter=1;chapter<=5;chapter++){
-  for(const id of chapter===1?first:routes[chapter])await action(id);
+  const route=chapter===1?first:routes[chapter];
+  for(let index=0;index<route.length;index++){
+   await action(route[index]);
+   if(chapter===2&&route[index]==='owen')assert(await page.locator('[data-choice=owen_help]').count()===0,'First meeting must not offer to carry undisclosed photographs');
+   if(chapter===2&&route[index]==='owen_photo')assert(await page.locator('[data-choice=owen_help]').count()===1,'Discussing the photographs unlocks their follow-up');
+   if(chapter===3&&route[index]==='marcus')assert(await page.locator('[data-choice=marcus_brother]').count()===0,'First discussion of the crossing must not assume Aaron was mentioned');
+   if(chapter===3&&route[index]==='marcus_route')assert(await page.locator('[data-choice=marcus_brother]').count()===1,'Hearing the route account unlocks the offer to warn Aaron');
+   if(index===1&&chapter>1){
+    const opening=await page.evaluate(chapter=>window.HundredCampaign.chapter(chapter).opening,chapter);
+    assert(await page.evaluate(()=>JSON.parse(localStorage.getItem('the-hundred-story-v3')).sceneText)==='','Approaching someone must clear transient chapter text for this fixture');
+    await page.locator('#help').click();
+    assert((await page.locator('#panelBody').innerText()).includes(opening),'Chapter opening must remain readable after moving into a conversation: '+chapter);
+    await page.locator('#closePanel').click();
+   }
+  }
   assert(await page.locator('#ending').isVisible(),'Chapter '+chapter+' must complete');
   assert((await page.locator('#ending').innerText()).includes(chapter===5?'CONTEST IS BROKEN':'CHAPTER COMPLETE'),'Chapter '+chapter+' must win');
   if(chapter<5){await page.locator('[data-stat="sense"]').click();await page.locator('#continueChapter').click();snapshots[chapter+1]=await page.evaluate(()=>JSON.parse(localStorage.getItem('the-hundred-story-v3')))}

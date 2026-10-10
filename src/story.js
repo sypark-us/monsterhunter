@@ -39,8 +39,8 @@
    topics:[
     {id:"keira_daily",ask:"How has your evening been?",answer:"Busy. People come here to avoid the rain and pretend they aren't waiting for someone.",effect:"daily"},
     {id:"keira_guests",ask:"Anyone interesting come through tonight?",answer:"A man from the Victoria Hotel brought someone here. They argued about using a real name. I didn't hear what came next.",effect:"heardKeira"},
-    {id:"keira_family",ask:"Why are you working so late?",answer:"My father is ill. If I close early, the bills keep coming anyway. A promise to someone you love can become a burden.",effect:"family"},
-    {id:"keira_oath",ask:"Can you promise you'll be here tomorrow?",answer:"All right. I promise to open the stall tomorrow, if you need somewhere to sit.",effect:"boundKeira",requires:["family"]},
+    {id:"keira_family",ask:"Do you always stay open this late?",answer:"My father is ill. If I close early, the bills keep coming anyway. A promise to someone you love can become a burden.",effect:"family"},
+    {id:"keira_oath",ask:"Could I come back tomorrow? It helps to have somewhere familiar.",answer:"All right. I promise to open the stall tomorrow, if you need somewhere to sit.",effect:"boundKeira",requires:["family"]},
     {id:"keira_renounce",ask:"If your father needs you tomorrow, would you cancel our promise?",answer:"Yes. I take it back. I won't be here tomorrow. I need to look after him.",effect:"renouncedKeira",requires:["boundKeira"]},
     {id:"keira_cast",ask:"Tell her: 'I release you from your promise.'",answer:"Your demon reaches for the oath.",effect:"castKeira",requires:["renouncedKeira","powerKnown"]},
     {id:"keira_meal",ask:"Could I get something hot to eat? (HK$20)",answer:"Here you go. Eat before it gets cold.",effect:"meal",repeatable:true},
@@ -51,16 +51,16 @@
    greeting:"Deliveries don't stop just because the streets are flooded. You looking for an address?",
    topics:[
     {id:"marcus_job",ask:"Is there work tonight?",answer:"There always is. But the pay barely keeps up with transport and rent.",effect:"daily"},
-    {id:"marcus_people",ask:"Do you ever feel like someone is following you?",answer:"Sure. Half the city's looking over its shoulder lately. Doesn't mean they're criminals.",effect:"strange"},
+    {id:"marcus_people",ask:"Do night deliveries ever make you uneasy?",answer:"Sure. Half the city's looking over its shoulder lately. Doesn't mean they're criminals.",effect:"strange"},
     {id:"marcus_hotel",ask:"Have you delivered to the Victoria Hotel?",answer:"A few times. Staff always seem nervous when the consultant is around. Could just be a terrible boss.",effect:"rumor"},
-    {id:"marcus_oaths",ask:"Would you trust a stranger's promise?",answer:"If a promise meant something, they wouldn't need to keep saying it.",effect:"oathEcho"}
+    {id:"marcus_oaths",ask:"Do customers usually keep their promises?",answer:"They promise they'll be there, then leave me waiting. If a promise meant something, they wouldn't need to keep saying it.",effect:"oathEcho"}
    ]
   },
   iris:{
    greeting:"The rain won't stop. I'm waiting for a friend who said she'd meet me, but her phone's dead.",
    topics:[
     {id:"iris_friend",ask:"Who are you waiting for?",answer:"A friend from university. She's been disappearing for hours at a time. Maybe she just needs space.",effect:"daily"},
-    {id:"iris_voices",ask:"Have you heard voices that aren't yours?",answer:"My grandmother used to say some dreams belonged to people who had already died. I never took her seriously.",effect:"strange"},
+    {id:"iris_voices",ask:"Do you know any stories about strange dreams?",answer:"My grandmother used to say some dreams belonged to people who had already died. I never took her seriously.",effect:"strange",requiresTopics:["iris_friend"]},
     {id:"iris_promises",ask:"Do you think people should keep their promises?",answer:"Usually. But if keeping a promise hurts someone, maybe breaking it is the right thing to do.",effect:"oathEcho"},
     {id:"iris_hotel",ask:"Do you know anyone at the hotel?",answer:"Only the front desk clerk. He helped me find my way when I was lost.",effect:"daily"}
    ]
@@ -69,14 +69,14 @@
    greeting:"Good evening. The hotel is nearly full, but there's always room for a conversation.",
    topics:[
     {id:"vincent_work",ask:"What do you do here?",answer:"Consulting. Mostly guest relations. People prefer discretion.",effect:"daily"},
-    {id:"vincent_late",ask:"Were you working here late yesterday?",answer:"No. I left at nine fifty-five. Never went upstairs after that.",effect:"vincentAlibi"},
-    {id:"vincent_names",ask:"Why are some guests unwilling to use their real names?",answer:"People are entitled to privacy. I don't ask questions that might embarrass them.",effect:"vincentPrivacy"},
-    {id:"vincent_private",ask:"What did you want to discuss upstairs?",answer:"Something best kept between us. If you come up, give the receptionist a different name.",effect:"privateOffer"},
+    {id:"vincent_late",ask:"What sort of hours do you keep here?",answer:"I usually leave before ten. Last night it was nine fifty-five. I didn't go upstairs after that.",effect:"vincentAlibi"},
+    {id:"vincent_names",ask:"Do guests have to use their real names?",answer:"People are entitled to privacy. I don't ask questions that might embarrass them.",effect:"vincentPrivacy"},
+    {id:"vincent_private",ask:"Do you offer private consultations?",answer:"We can talk upstairs, if you prefer. Give the receptionist a different name. Some conversations are best kept between us.",effect:"privateOffer"},
     {id:"vincent_false",ask:"Accept the private invitation under a false name.",answer:"Vincent guides you through a locked door. The name you gave him feels suddenly heavy.",effect:"falseName",requires:["privateOffer"]},
     {id:"vincent_true",ask:"Accept the invitation using your real name.",answer:"He hesitates when you refuse to use a false name. 'Never mind,' he says, and leaves the door open.",effect:"trueName",requires:["privateOffer"]},
-    {id:"vincent_meeting",ask:"Promise to meet me here, in public, at midnight.",answer:"Very well. I promise to meet you here, in this lobby, at midnight.",effect:"boundVincent",requires:["vincentPrivacy"]},
+    {id:"vincent_meeting",ask:"Would you be willing to meet me here in the lobby at midnight?",answer:"Very well. I promise to meet you here, in this lobby, at midnight.",effect:"boundVincent",requires:["vincentPrivacy"]},
     {id:"vincent_keira",ask:"Keira mentioned an argument about names.",answer:"She shouldn't listen to private guests. You should be careful about repeating gossip.",effect:"challengedKeira",requires:["heardKeira"]},
-    {id:"vincent_daniel",ask:"Daniel says you were here after ten.",answer:"Daniel is mistaken. I told you when I left.",effect:"challengedDaniel",requires:["heardDaniel"]},
+    {id:"vincent_daniel",ask:"Daniel says you were here after ten.",answer:"Daniel is mistaken. I left at nine fifty-five.",effect:"challengedDaniel",requires:["heardDaniel"]},
     {id:"vincent_press",ask:"If you're lying, do you still intend to honor your promise?",answer:"Enough. I withdraw my promise. I won't meet you at midnight. Stay away from me.",effect:"renouncedVincent",requires:["boundVincent","challengedKeira","challengedDaniel"]},
     {id:"vincent_cast",ask:"Tell him: 'I release you from your promise.'",answer:"A cold syllable escapes your mouth. His smile fractures.",effect:"castVincent",requires:["renouncedVincent","powerKnown"]}
    ]
@@ -85,9 +85,9 @@
    greeting:"Welcome to the Victoria Hotel. Please let me know if I can help.",
    topics:[
     {id:"daniel_shift",ask:"Long shift?",answer:"Long enough. The night manager keeps changing the rota, but someone's always waiting at the desk.",effect:"daily"},
-    {id:"daniel_vincent",ask:"Does the consultant often work after hours?",answer:"Mr. Lau? He says he leaves early. But I saw him speaking with someone at ten ten last night.",effect:"heardDaniel"},
-    {id:"daniel_private",ask:"Why do guests use different names?",answer:"I don't know. Some of them ask for private rooms but never sign the public book.",effect:"rumor"},
-    {id:"daniel_human",ask:"Are you afraid of anyone here?",answer:"I'm afraid of losing my job, if that's what you mean.",effect:"daily"}
+    {id:"daniel_vincent",ask:"Who else works here in the evenings?",answer:"Mr. Lau, our consultant, says he leaves early. But I saw him speaking with someone at ten ten last night.",effect:"heardDaniel"},
+    {id:"daniel_private",ask:"How do private bookings work here?",answer:"Some guests use different names. Some ask for private rooms but never sign the public book. I don't know who arranges that.",effect:"rumor"},
+    {id:"daniel_human",ask:"That sounds stressful. Is the job all right?",answer:"Some days are harder than others. Mostly I worry about losing it.",effect:"daily",requiresTopics:["daniel_shift"]}
    ]
   },
   yuen:{
@@ -122,10 +122,10 @@
   noEnergy:"You need to rest before doing that.",
   repeated:"You've already pursued that conversation.",
   late:"Dawn approaches. The tournament will not wait for you.",
-  deathTitle:"YOUR HOST IS LOST",
-  innocentDeath:"She was innocent. The spell kills her—and immediately consumes your host as well.",
+  deathTitle:"YOUR LIFE IS LOST",
+  innocentDeath:"She was innocent. The spell kills her—and immediately takes your life as well.",
   rivalDeath:"The false name locks you inside his curse. By the time you understand, it is too late.",
-  deadlineDeath:"The night ends without a rival's death. Your demon consumes the human carrying it.",
+  deadlineDeath:"02:00 arrives before you resolve tonight's confrontation. The demon takes your life.",
   victoryTitle:"THE FIRST DEMON FALLS",
   victory:"Vincent recoils. For one heartbeat, a second face appears beneath his skin. Your demon laughs, and the oath takes him. One of the hundred is gone.",
   continueTitle:"CHAPTER COMPLETE",

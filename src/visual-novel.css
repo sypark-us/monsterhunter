@@ -77,6 +77,27 @@
  .characterLine[data-mode="conversation"]{top:76px;left:132px;right:8px}
  .characterLine[data-mode="conversation"] .actor.selected img{width:200%;left:-50%}
 }
+@media(max-height:500px) and (min-width:600px) and (max-width:900px){
+ .stage:has([data-mode="conversation"]) .dialogue{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);height:40%}
+ .stage:has([data-mode="conversation"]) .dialogue .top{min-height:0;overflow:auto;padding:10px 16px}
+ .stage:has([data-mode="conversation"]) .line{max-height:none;overflow:visible}
+ .stage:has([data-mode="conversation"]) .choices{padding:10px 12px;border-left:1px solid var(--line)}
+}
 
 /* Camera dimensions are shared by the background and every exploration actor. */
 .backdrop{inset:auto;object-fit:fill}
+
+/* Story orientation stays available without interrupting exploration. */
+.deadline{font:9px system-ui;color:#d6b99c;white-space:nowrap}
+.speaker-role{display:block;font:11px system-ui;color:var(--muted);margin-top:3px}
+.stage:has([data-mode="scene"]) .speaker-role{display:none}
+.action-cost{display:block;margin:3px 0 0 37px;font:10px/1.3 system-ui;color:#b7c8cd}
+.intro-hint{font:13px/1.6 system-ui!important;color:#c5c4c8}
+.story-chapter{font:12px system-ui;color:#e4c5a7;letter-spacing:.5px}
+.story-lead{border-left:2px solid var(--gold);padding:1px 16px;margin:24px 0}
+.story-lead h3{margin-bottom:8px}.story-lead p{margin:8px 0}
+.story-rules{padding-left:22px}.story-rules li{padding:4px 0}
+.story-controls{border-top:1px solid var(--line);padding-top:16px;margin-top:24px}
+.story-controls summary{cursor:pointer;color:#e4c5a7}
+.resume-context{border-left:2px solid var(--gold);padding-left:16px;margin:24px 0}.resume-context h3{font:16px Georgia;color:#e4c5a7}
+@media(max-width:720px){.deadline{font-size:8px}.speaker-role{font-size:10px}.action-cost{font-size:9px}}

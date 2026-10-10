@@ -1,4 +1,4 @@
-# The Hundred: Hong Kong — Campaign v0.4.2
+# The Hundred: Hong Kong — Campaign v0.4.3
 
 A single-player supernatural story RPG played in a browser. One hundred demons have attached themselves to human hosts. Your demon remembers its powers through conversation, while you try to keep your own life intact.
 
@@ -7,6 +7,8 @@ A single-player supernatural story RPG played in a browser. One hundred demons h
 ## Playing
 
 Choose a location. Characters appear within the environment; click one to bring them to the center for a conversation. End the conversation to return to the scene. Nobody is visually identified as possessed or innocent. Listen to what people say, compare their accounts, and learn the conditions of each ritual. A wrong killing or a rival's conversational trap can end your run.
+
+The opening gives you a first lead, and the scene's next-conversation hint changes as you learn. **Story & Help** keeps the chapter's context and your learned ritual rules available after travel or reloading. Unfamiliar characters introduce themselves; follow-up questions depend on what has actually been discussed. Each reply shows its time and resource cost. Reading and opening help are free; each night's deadline is 02:00.
 
 Time, energy, food, work, and rent matter. Your relationships and ability upgrades carry into later chapters and unlock alternative conversations. After a chapter victory, allocate your demon point and continue. The final chapter offers three resolutions, with availability affected by your earlier choices.
 
