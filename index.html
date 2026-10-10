@@ -4,57 +4,61 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b0f19">
-<title>The Hundred: Hong Kong — Photo + Painted v0.3</title>
-<link rel="stylesheet" href="src/visual-novel.css?v=0.3">
-<script defer src="src/story.js?v=0.3"></script>
-<script defer src="src/engine.js?v=0.3"></script>
+<title>The Hundred: Hong Kong — Campaign v0.4</title>
+<link rel="stylesheet" href="src/visual-novel.css?v=0.4">
+<script defer src="src/story.js?v=0.4"></script>
+<script defer src="src/campaign.js?v=0.4"></script>
+<script defer src="src/audio.js?v=0.4"></script>
+<script defer src="src/engine.js?v=0.4"></script>
 <script defer src="assets/cast-part-0.js?v=0.3"></script>
 <script defer src="assets/cast-part-1.js?v=0.3"></script>
 <script defer src="assets/cast-part-2.js?v=0.3"></script>
 <script defer src="assets/cast-part-3.js?v=0.3"></script>
-<script defer src="src/visual-assets.js?v=0.3"></script>
-<script defer src="src/ui.js?v=0.3"></script>
+<script defer src="src/visual-assets.js?v=0.4"></script>
+<script defer src="src/ui.js?v=0.4"></script>
 </head>
 <body>
 <header>
  <div class="brand"><h1>THE <em>HUNDRED</em></h1><small>HONG KONG</small></div>
  <div class="status">
-  <div class="chapterStat"><label>CHAPTER 01</label><strong>THE FIRST VOW</strong></div>
+  <div class="chapterStat"><label id="chapterLabel">CHAPTER 01</label><strong id="chapterTitle">THE FIRST VOW</strong></div>
   <div><label>TIME</label><strong id="clock">18:00</strong></div>
   <div><label>CASH</label><strong id="money">HK$55</strong></div>
   <div><label>ENERGY</label><strong id="energy">74 / 100</strong></div>
  </div>
- <div class="menu"><span class="build" id="versionLabel">v0.3 · PHOTO + PAINTED</span><button type="button" id="save">Save</button><button type="button" id="audio">♫ Off</button><button type="button" id="help" aria-label="How to play">?</button><button type="button" id="restart">New</button><a href="credits.html" target="_blank" rel="noopener">Credits</a></div>
+ <div class="menu"><span class="build" id="versionLabel">v0.4 · THE CAMPAIGN</span><button type="button" id="save">Save</button><button type="button" id="history">History</button><button type="button" id="progress">Your Life</button><button type="button" id="settings">Settings</button><button type="button" id="audio">♫ Off</button><button type="button" id="help" aria-label="How to play">?</button><button type="button" id="restart">New</button><a href="credits.html" target="_blank" rel="noopener">Credits</a></div>
 </header>
 <main class="viewport">
  <section class="stage" aria-label="Visual novel scene">
   <img id="backdrop" class="backdrop" alt="" aria-hidden="true">
   <div class="glaze" aria-hidden="true"></div>
   <nav class="travel" aria-label="Locations"><label>CHOOSE A PLACE</label><div id="locations"></div></nav>
-  <div class="location"><small>DAY 1 · AFTER DARK</small><strong id="placeName">Old Apartment</strong></div>
+  <div class="location"><small id="dayLabel">DAY 1 · AFTER DARK</small><strong id="placeName">Old Apartment</strong></div>
   <div class="characterLine" id="people" aria-label="People you can speak with"></div>
   <aside class="whisper hidden" id="whisper" aria-live="polite"></aside>
   <div id="photoStatus" class="photo-status hidden" role="status"><span id="photoMessage"></span><button type="button" id="retryPhoto" class="hidden">Retry</button></div>
   <section class="dialogue" aria-label="Conversation">
-   <div class="top"><strong class="speaker" id="speaker">THE CITY</strong><p class="line" id="line">Click a person to begin a conversation.</p></div>
+   <div class="top"><strong class="speaker" id="speaker">THE CITY</strong><p class="line" id="line" tabindex="0" role="button" aria-label="Reveal complete dialogue text">Click a person to begin a conversation.</p></div>
    <div class="choices"><div class="choiceTitle" id="choiceTitle">CLICK SOMEONE TO TALK</div><div id="options"></div></div>
   </section>
+  <p id="objective" class="objective"></p>
   <div class="subtitle">SAME CITY. DIFFERENT SOULS.</div>
   <div id="ending" class="ending hidden" aria-live="polite"></div>
  </section>
 </main>
 <div id="toast" class="toast hidden" role="status"></div>
-<div id="intro" class="modalOverlay">
+<dialog id="intro" class="modalOverlay" aria-labelledby="introTitle">
  <div class="modal">
   <span class="eyebrow">A CONVERSATION-DRIVEN SUPERNATURAL THRILLER</span>
-  <h2>THE HUNDRED</h2>
+  <h2 id="introTitle">THE HUNDRED</h2>
   <p>One hundred demons have escaped Hell, each attached to a human. The last survivor will ascend.</p>
   <p>The voice inside you remembers almost nothing. There is no way to identify the others by sight.</p>
   <p>Go somewhere. Click anyone. Listen closely. A wrong killing takes your own life.</p>
-  <div class="actions"><button type="button" class="primary" id="begin">Begin Chapter One</button><button type="button" id="resume" class="hidden">Resume Saved Story</button></div>
+  <div class="actions"><button type="button" class="primary" id="begin">Begin the Campaign</button><button type="button" id="resume" class="hidden">Resume Saved Story</button></div>
   <p id="fatal" class="fatal hidden" role="alert"></p>
   <noscript><p class="fatal">JavaScript must be enabled to play this game.</p></noscript>
  </div>
-</div>
+</dialog>
+<dialog id="playerPanel" class="player-panel"><div class="panel-heading"><h2 id="panelTitle"></h2><button type="button" id="closePanel">Close</button></div><div id="panelBody"></div></dialog>
 </body>
 </html>
