@@ -5,7 +5,7 @@ async page => {
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
  await page.evaluate(()=>localStorage.clear());await page.reload({waitUntil:'networkidle'});
  await page.setViewportSize({width:1440,height:900});
- await page.waitForFunction(()=>document.body.dataset.build==='0.4.3');
+ await page.waitForFunction(()=>document.body.dataset.build==='0.4.4');
  await page.locator('#begin').click();
  const snapshots={1:await page.evaluate(()=>JSON.parse(localStorage.getItem('the-hundred-story-v3')))};
  const first=['diner','keira','keira_family','keira_guests','keira_oath','keira_work','street','marcus','marcus_oaths','shrine','yuen','yuen_oath','hotel','daniel','daniel_vincent','vincent','vincent_names','vincent_meeting','vincent_keira','vincent_daniel','vincent_press','vincent_cast'];
