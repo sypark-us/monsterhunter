@@ -1,4 +1,4 @@
-# The Hundred: Hong Kong — Campaign v0.4.1
+# The Hundred: Hong Kong — Campaign v0.4.2
 
 A single-player supernatural story RPG played in a browser. One hundred demons have attached themselves to human hosts. Your demon remembers its powers through conversation, while you try to keep your own life intact.
 
@@ -17,6 +17,7 @@ Time, energy, food, work, and rent matter. Your relationships and ability upgrad
 - Nine locations, including the night clinic, market, ferry pier, and rooftop.
 - Thirty individual 1024 × 1536 transparent character images, replacing the old compressed shared portrait sheet in the live UI.
 - Authored positions and depth for each location, plus twelve seated, working, and crouching exploration poses. Clicking a character opens their centered conversation portrait; leaving returns them to their activity.
+- Characters and backgrounds share one scale, calibrated against each location's furniture and floor perspective. Narrow screens frame the whole scene to preserve those proportions.
 - Persistent relationships; Sense, Intelligence, Charisma, and Dominion dialogue alternatives; rent and human-connection consequences.
 - Eight original synthesized instrumental themes, rain ambience, interaction sounds, and separate volume controls. Audio is generated locally by Web Audio; these are not recorded orchestral tracks or voice acting.
 - Autosave, three manual save slots, legacy v0.3 autosave migration, conversation history, text-speed controls, and keyboard dialogue selection.
@@ -51,7 +52,7 @@ npx playwright install chromium
 node scripts/browser-smoke.cjs
 ```
 
-The browser walkthrough plays all five chapters, exercises all three endings, checks all thirty character assets across desktop/tablet/phone layouts, and verifies saves, history, settings, and a real audio context. Screenshots and its result are written to `screenshots/`.
+The browser walkthrough plays all five chapters, exercises all three endings, checks all thirty character assets across desktop, tablet, phone, ultrawide, and short landscape layouts, and verifies saves, history, settings, and a real audio context. It measures character size and floor position relative to the background at every viewport. Screenshots and its result are written to `screenshots/`.
 
 ## Source structure
 
