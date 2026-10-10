@@ -107,6 +107,7 @@
    return{ok:false,state:next,reason:next.cash+monetary<0?t("noMoney"):t("noEnergy")};
   next.interactions++;next.cash+=monetary;next.energy=Math.min(100,next.energy+energy);
   next.time+=topic.effect==="work"?85:topic.effect==="rest"?60:HUMAN_COST.time;
+  if(next.time>=DAWN){expire(next);return{ok:true,state:next};}
   next.flags["used:"+topic.id]=true;
   if(!next.spokeTo.includes(id))next.spokeTo.push(id);
   next.sceneText="";
