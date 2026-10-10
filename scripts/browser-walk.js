@@ -5,7 +5,7 @@ async page => {
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
  await page.evaluate(()=>localStorage.clear());await page.reload({waitUntil:'networkidle'});
  await page.setViewportSize({width:1440,height:900});
- await page.waitForFunction(()=>document.body.dataset.build==='0.4.1');
+ await page.waitForFunction(()=>document.body.dataset.build==='0.4.2');
  await page.locator('#begin').click();
  const snapshots={1:await page.evaluate(()=>JSON.parse(localStorage.getItem('the-hundred-story-v3')))};
  const first=['diner','keira','keira_family','keira_guests','keira_oath','keira_work','street','marcus','marcus_oaths','shrine','yuen','yuen_oath','hotel','daniel','daniel_vincent','vincent','vincent_names','vincent_meeting','vincent_keira','vincent_daniel','vincent_press','vincent_cast'];
@@ -36,6 +36,8 @@ async page => {
  // Authentic chapter-start snapshots from the golden path are layout fixtures.
  const cases=[['apartment',1],['street',1],['diner',1],['hotel',1],['shrine',1],['apartment',2],['street',2],['diner',2],['hotel',2],['rooftop',2],['clinic',2],['market',2],['apartment',3],['street',3],['shrine',3],['market',3],['clinic',3],['pier',3],['apartment',4],['street',4],['clinic',4],['market',4],['rooftop',4]];
  const seen=new Set(),activityCharacters=new Set(['ada','keira','marcus','iris','vincent','daniel','yuen','mei','celia','owen','jun','sora']),seenActivities=new Set();
+ const viewports=[{width:1440,height:900},{width:768,height:1024},{width:390,height:667},{width:2560,height:900},{width:844,height:390}];
+ let projectedActors=0;
  async function waitForCharacterArt(){
   await page.waitForFunction(()=>[...document.querySelectorAll('#people img')].every(i=>i.complete&&i.naturalWidth>=1024&&i.naturalHeight>=1536));
   await page.locator('#people img').evaluateAll(async images=>{
@@ -44,7 +46,7 @@ async page => {
    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   });
  }
- for(const viewport of [{width:1440,height:900},{width:768,height:1024},{width:390,height:667}]){
+ for(const viewport of viewports){
   await page.setViewportSize(viewport);
   const photographed=new Set();
   for(const [place,chapter] of cases){
@@ -56,10 +58,25 @@ async page => {
    assert(people.length>0,'Scene must contain people');
    const sceneGeometry=await page.locator('#people [data-person]').evaluateAll(xs=>{
     const dialogue=document.querySelector('.dialogue').getBoundingClientRect();
-    return xs.map(actor=>{const button=actor.getBoundingClientRect(),image=actor.querySelector('.portrait-crop').getBoundingClientRect();return{id:actor.dataset.person,bottom:button.bottom,above:button.bottom<=dialogue.top-8&&image.bottom<=dialogue.top-8}});
+    const backdrop=document.querySelector('#backdrop'),background=backdrop.getBoundingClientRect();
+    const frame=window.HundredStaging.frame,scale=background.width/frame.width;
+    return xs.map(actor=>{
+     const button=actor.getBoundingClientRect(),image=actor.querySelector('.portrait-crop').getBoundingClientRect();
+     const expected=window.HundredStaging.actor(backdrop.dataset.place,actor.dataset.person).world;
+     // Invert the measured background transform: every visible silhouette must
+     // retain its authored proportions and foot position in the painted location.
+     const measured={x:(image.left+image.width/2-background.left)/scale,y:(image.bottom-background.top)/scale,width:image.width/scale,height:image.height/scale};
+     const errors=Object.keys(measured).map(key=>Math.abs(measured[key]-expected[key]));
+     return{id:actor.dataset.person,bottom:button.bottom,worldFoot:measured.y,above:button.bottom<=dialogue.top-8&&image.bottom<=dialogue.top-8,
+      sameScale:Math.abs(background.height-frame.height*scale)<=1&&Math.abs(Number(backdrop.dataset.sceneScale)-scale)<=1/frame.width,
+      matched:errors.every(error=>error<=1/scale),expected,measured};
+    });
    });
+   assert(sceneGeometry.every(actor=>actor.sameScale),'Background must preserve its source aspect ratio and shared camera scale: '+place+' viewport '+viewport.width);
+   for(const actor of sceneGeometry)assert(actor.matched,'Character scale and feet must match location coordinates: '+place+'/'+actor.id+' viewport '+viewport.width+' expected '+JSON.stringify(actor.expected)+' measured '+JSON.stringify(actor.measured));
+   projectedActors+=sceneGeometry.length;
    assert(sceneGeometry.every(actor=>actor.above),'Exploration figures and feet must clear dialogue: '+place+' chapter '+chapter+' viewport '+viewport.width);
-   if(people.length>1)assert(Math.max(...sceneGeometry.map(actor=>actor.bottom))-Math.min(...sceneGeometry.map(actor=>actor.bottom))>8,'Exploration figures need distinct ground depths: '+place+' chapter '+chapter+' viewport '+viewport.width);
+   if(people.length>1)assert(Math.max(...sceneGeometry.map(actor=>actor.worldFoot))-Math.min(...sceneGeometry.map(actor=>actor.worldFoot))>8,'Exploration figures need distinct ground depths in the location: '+place+' chapter '+chapter+' viewport '+viewport.width);
    for(const id of people){
     seen.add(id);const actor=page.locator('#people [data-person="'+id+'"]'),idle=await actor.locator('img').boundingBox(),idleSource=await actor.locator('img').getAttribute('src');
     const activity=activityCharacters.has(id);
@@ -104,5 +121,5 @@ async page => {
  await page.screenshot({path:'screenshots/campaign-desktop-focus.png'});
  await page.setViewportSize({width:390,height:667});await page.screenshot({path:'screenshots/campaign-mobile-focus.png',fullPage:true});
  assert(errors.length===0,'No JavaScript errors: '+errors.join('; '));
- return{passed:true,chapters:5,endings:3,locations:9,characters:seen.size,activities:seenActivities.size,viewports:3,groundDepths:true,feetClearDialogue:true,saveSlots:true,history:true,textSpeed:true,audioContext:true,pageErrors:errors};
+ return{passed:true,chapters:5,endings:3,locations:9,characters:seen.size,activities:seenActivities.size,viewports:viewports.length,projectedActors,locationScale:true,groundDepths:true,feetClearDialogue:true,saveSlots:true,history:true,textSpeed:true,audioContext:true,pageErrors:errors};
 }

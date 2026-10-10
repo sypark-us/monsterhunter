@@ -16,12 +16,29 @@
       index++;$('line').textContent=text.slice(0,index);if(index>=text.length)clearInterval(typing);
     },1000/preferences.speed);
   }
+  let explorationPanelHeight=125;
   function reserveDialogueSpace(){
-    const stage=document.querySelector('.stage').getBoundingClientRect();
-    const panel=document.querySelector('.dialogue').getBoundingClientRect();
-    $('people').style.bottom=$('people').dataset.mode==='conversation'?Math.ceil(stage.bottom-panel.top+16)+'px':'0px';
-    $('people').style.setProperty('--scene-panel-clearance',Math.ceil(stage.bottom-panel.top+10)+'px');
     document.querySelector('.viewport').style.height='calc(100dvh - '+document.querySelector('header').offsetHeight+'px)';
+    const stage=document.querySelector('.stage').getBoundingClientRect();
+    const panel=document.querySelector('.dialogue').getBoundingClientRect(),people=$('people');
+    const inScene=people.dataset.mode==='scene';
+    people.style.bottom=inScene?'0px':Math.ceil(stage.bottom-panel.top+16)+'px';
+    if(!people.dataset.place||stage.width<=0||stage.height<=0)return;
+    if(inScene)explorationPanelHeight=stage.bottom-panel.top;
+    const heading=document.querySelector('.location').getBoundingClientRect();
+    const objective=$('objective').getBoundingClientRect();
+    const top=Math.max(heading.bottom,inScene?objective.bottom:heading.bottom+35)-stage.top+10;
+    const bottom=stage.height-Math.min(explorationPanelHeight,stage.height*.45)-10;
+    if(bottom<=top)return;
+    const camera=Staging.projection(people.dataset.place,{width:stage.width,height:stage.height,top,bottom});
+    const backdrop=$('backdrop');
+    Object.assign(backdrop.style,{left:camera.x+'px',top:camera.y+'px',width:camera.width+'px',height:camera.height+'px'});
+    backdrop.dataset.sceneScale=String(camera.scale);
+    for(const el of people.querySelectorAll('[data-person]')){
+      const placement=Staging.actor(people.dataset.place,el.dataset.person),projected=Staging.project(placement,camera);
+      el.style.setProperty('--scene-x',projected.x+'px');el.style.setProperty('--scene-top',projected.top+'px');
+      el.style.setProperty('--scene-width',projected.width+'px');
+    }
   }
   const layoutObserver=new ResizeObserver(reserveDialogueSpace);
   layoutObserver.observe(document.querySelector('.dialogue'));layoutObserver.observe(document.querySelector('header'));
@@ -88,12 +105,13 @@
       image.onerror=()=>{if(!triedRemote){triedRemote=true;image.src=Visuals.scenes[button.dataset.place]||Visuals.photoSources(button.dataset.place)[0]}else image.style.visibility='hidden'};
     });
     $('people').dataset.mode=view.dialogue?'conversation':'scene';
+    $('people').dataset.place=view.place;
     $('people').innerHTML=view.characters.map(id=>{
       const p=Story.cast[id],active=view.dialogue?.id===id;
-      const placement=Staging.actor(view.place,id),[x,y,height]=placement.desktop,[mx,my,mheight]=placement.mobile;
+      const placement=Staging.actor(view.place,id),crop=placement.crop;
       const art=view.dialogue?Visuals.portrait(id):(placement.art||Visuals.portrait(id));
       const activity=!view.dialogue&&placement.activity?' — '+placement.activity:'';
-      return '<button type="button" class="actor '+(active?'selected':'')+'" data-person="'+id+'" data-pose="'+(!view.dialogue&&placement.art?'activity':'portrait')+'" style="--scene-x:'+x+'%;--ground-y:'+y+'%;--scene-scale:'+(height*2/3)+'cqh;--mobile-x:'+mx+'%;--mobile-ground:'+my+'%;--mobile-scale:'+(mheight*2/3)+'cqh;--scene-order:'+placement.depth+';--scene-aspect:'+placement.aspect+';--scene-depth:0px;--actor-width:23%" '+(view.dialogue&&!active?'hidden ':'')+(state.outcome?'disabled':'')+' aria-label="Talk to '+escapeHtml(p.name+activity)+'"><span class="portrait-crop"><img data-art="individual" src="'+art+'" alt="" draggable="false"></span><span class="name">'+escapeHtml(p.name)+'</span></button>';
+      return '<button type="button" class="actor '+(active?'selected':'')+'" data-person="'+id+'" data-pose="'+(!view.dialogue&&placement.art?'activity':'portrait')+'" style="--scene-order:'+placement.depth+';--scene-aspect:'+(crop.width/crop.height)+';--crop-width:'+(1024/crop.width*100)+'%;--crop-height:'+(1536/crop.height*100)+'%;--crop-left:'+(-crop.x/crop.width*100)+'%;--crop-top:'+(-crop.y/crop.height*100)+'%;--scene-depth:0px;--actor-width:23%" '+(view.dialogue&&!active?'hidden ':'')+(state.outcome?'disabled':'')+' aria-label="Talk to '+escapeHtml(p.name+activity)+'"><span class="portrait-crop"><img data-art="individual" src="'+art+'" alt="" draggable="false"></span><span class="name">'+escapeHtml(p.name)+'</span></button>';
     }).join('');
     $('people').querySelectorAll('[data-person]').forEach(button=>{
       button.onclick=()=>apply(Engine.approach(state,button.dataset.person));
@@ -172,7 +190,7 @@
   if(saveAvailable)$('resume').classList.remove('hidden');
   // Decode an individual sprite before declaring the artwork ready.
   const proof=new Image();proof.src=Visuals.portrait('ada');
-  proof.onload=()=>{document.body.dataset.paintedCast=proof.naturalWidth+'x'+proof.naturalHeight;document.body.dataset.build='0.4.1'};
+  proof.onload=()=>{document.body.dataset.paintedCast=proof.naturalWidth+'x'+proof.naturalHeight;document.body.dataset.build='0.4.2'};
   proof.onerror=()=>{document.body.dataset.paintedCast='error';toast('The character artwork could not be decoded.')};
   render();
   $('intro').showModal();
