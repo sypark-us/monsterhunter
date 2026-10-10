@@ -1,4 +1,4 @@
-# The Hundred: Hong Kong — Campaign v0.4
+# The Hundred: Hong Kong — Campaign v0.4.1
 
 A single-player supernatural story RPG played in a browser. One hundred demons have attached themselves to human hosts. Your demon remembers its powers through conversation, while you try to keep your own life intact.
 
@@ -16,7 +16,7 @@ Time, energy, food, work, and rent matter. Your relationships and ability upgrad
 - Thirty illustrated, clickable characters: twelve recurring leads and eighteen supporting people with their own conversations.
 - Nine locations, including the night clinic, market, ferry pier, and rooftop.
 - Thirty individual 1024 × 1536 transparent character images, replacing the old compressed shared portrait sheet in the live UI.
-- Location-specific scene placement, centered conversation framing, and responsive dialogue-aware portrait bounds.
+- Authored positions and depth for each location, plus twelve seated, working, and crouching exploration poses. Clicking a character opens their centered conversation portrait; leaving returns them to their activity.
 - Persistent relationships; Sense, Intelligence, Charisma, and Dominion dialogue alternatives; rent and human-connection consequences.
 - Eight original synthesized instrumental themes, rain ambience, interaction sounds, and separate volume controls. Audio is generated locally by Web Audio; these are not recorded orchestral tracks or voice acting.
 - Autosave, three manual save slots, legacy v0.3 autosave migration, conversation history, text-speed controls, and keyboard dialogue selection.

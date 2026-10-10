@@ -46,5 +46,5 @@ async function download(place){
   }
   const decoded=Buffer.from(art.encoded,'base64');
   if(crypto.createHash('sha256').update(decoded).digest('hex')!==art.atlasSha256)throw new Error('Painted atlas integrity failure');
-  console.log('All five photos bundled; thirty individual characters and nine generated environments verified; legacy atlas integrity checked.');
+  console.log('All five legacy photos bundled; '+manifestFile.assets.length+' generated assets verified; legacy atlas integrity checked.');
 })().catch(error=>{console.error(error);process.exitCode=1});

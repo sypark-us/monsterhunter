@@ -25,7 +25,7 @@ const server=http.createServer(async(req,res)=>{
   const walk=vm.runInNewContext(await fsp.readFile(path.join(root,'scripts/browser-walk.js'),'utf8'),{setTimeout});
   const result=await walk(page);
   await fsp.writeFile(path.join(root,'screenshots','result.json'),JSON.stringify(result,null,2));
-  console.log('PASS: five chapters, three endings, nine locations, thirty high-resolution characters, desktop/tablet/mobile staging, saves/history/settings and real audio; no JS errors.');
+  console.log('PASS: five chapters, three endings, nine locations, thirty high-resolution characters, twelve activity/portrait transitions, distinct ground depths and dialogue clearance on desktop/tablet/mobile, saves/history/settings and real audio; no JS errors.');
  }catch(error){
   await page.screenshot({path:path.join(root,'screenshots','failure.png'),fullPage:true}).catch(()=>{});
   await fsp.writeFile(path.join(root,'screenshots','error.json'),JSON.stringify({error:String(error),pageErrors:errors},null,2));
