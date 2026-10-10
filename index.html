@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0e1425">
+<title>The Hundred: Hong Kong — Chapter One</title>
+<style>
+:root{color-scheme:dark;--bg:#090e18;--glass:#0c1426e8;--line:#ffffff38;--cream:#f9e3ca;--muted:#b8c3d0;--gold:#e8b991;--red:#e889a0;--teal:#7ed8cd}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#f4eae3;font-family:Georgia,'Times New Roman',serif;overflow:hidden}
+button{font:inherit;cursor:pointer;color:inherit}
+button:disabled{opacity:.42;cursor:not-allowed}
+button:focus-visible{outline:2px solid #9feee0;outline-offset:3px}
+header{height:75px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 23px;background:#0a1020e8;border-bottom:1px solid #b2a39b33;position:relative;z-index:12}
+.brand{min-width:210px}.brand h1{font-size:31px;line-height:1;letter-spacing:3px;font-weight:500;margin:0;color:#f4d0c5}.brand span{font:10px/1.1 system-ui,sans-serif;letter-spacing:2px;color:#b3becd}
+.status{display:flex;align-items:center;gap:20px;min-width:0}
+.statusItem{display:flex;gap:4px;flex-direction:column;align-items:center;white-space:nowrap}
+.statusItem label{font:10px system-ui,sans-serif;letter-spacing:1.7px;color:#a2b6c5}
+.statusItem strong{font:600 15px system-ui,sans-serif;color:#f3d2aa}
+.menu{display:flex;gap:8px}
+.menu button,.travel button,.modal button,.ending button{border:1px solid #a0a6bc57;border-radius:7px;background:#101b2fce;padding:9px 12px;font:12px system-ui,sans-serif}
+.menu button:hover,.travel button:hover,.modal button:hover,.ending button:hover{background:#2b3453;border-color:var(--gold)}
+.build{color:#80d9cf;font:600 10px system-ui,sans-serif;border:1px solid #2b7672;padding:4px 6px;border-radius:9px;margin-left:4px;letter-spacing:.6px}
+.viewport{height:calc(100dvh - 75px);max-height:1000px;min-height:480px;display:flex;align-items:stretch;justify-content:center}
+.stage{width:100%;height:100%;position:relative;overflow:hidden;background:#131c2f}
+.backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.07) contrast(1.05)}
+.glaze{position:absolute;inset:0;background:linear-gradient(90deg,#020713b0,transparent 25%,transparent 72%,#03071787),linear-gradient(0deg,#030715c7,transparent 63%)}
+.location{position:absolute;top:23px;left:225px;max-width:48%;border-left:3px solid var(--gold);padding:7px 14px;background:#0e1323c7;box-shadow:0 4px 22px #03030a7a;letter-spacing:1px}
+.location strong{font:600 18px Georgia,serif;display:block}
+.location small{font:10px system-ui,sans-serif;color:#c8cfda;letter-spacing:1.5px}
+.travel{position:absolute;z-index:5;left:18px;top:23px;width:182px;padding:12px;background:#071120b8;border:1px solid #d0d3d23b;border-radius:8px;backdrop-filter:blur(9px)}
+.travel label{display:block;font:10px system-ui,sans-serif;color:var(--gold);letter-spacing:2px;margin-bottom:9px}
+.travel button{width:100%;text-align:left;margin:0 0 6px;padding:11px 10px;background:#141e2dbb}
+.travel button.active{border-color:var(--gold);background:#5343558c;color:#ffe0ac}
+.travel button:disabled{opacity:.55}
+.characterLine{position:absolute;inset:80px 18px 125px 212px;display:flex;justify-content:space-around;align-items:end;gap:10px;pointer-events:none}
+.actor{pointer-events:auto;position:relative;align-self:end;display:flex;align-items:center;flex-direction:column;justify-content:end;border:0;background:transparent;max-height:100%;width:min(29%,290px);min-width:135px;padding:0 0 6px;filter:drop-shadow(0 14px 18px #050817b8);transition:transform .3s,filter .3s;overflow:visible}
+.actor img{width:100%;height:min(52dvh,480px);object-fit:contain;object-position:bottom;opacity:.91;filter:contrast(1.02)}
+.actor:hover,.actor.selected{transform:translateY(-8px);filter:drop-shadow(0 5px 17px #fbb59e85)}
+.actor:hover img,.actor.selected img{opacity:1}
+.actor .name{position:absolute;bottom:0;white-space:nowrap;color:#fbe3d7;letter-spacing:.4px;font:600 13px system-ui,sans-serif;text-shadow:0 2px 5px #050914;padding:4px 12px;background:#081421c7;border:1px solid #efbdaf6a;border-radius:7px}
+.actor .profession{font:10px system-ui,sans-serif;color:#c3cbd8;text-shadow:0 1px 4px #000;position:absolute;bottom:30px;opacity:0;transition:opacity .12s}
+.actor:hover .profession,.actor:focus-visible .profession{opacity:1}
+.actor.selected .name{border-color:#ffe3bb;background:#332433d9}
+.actor:active{transform:translateY(-2px)}
+.dialogue{position:absolute;z-index:8;left:220px;right:24px;bottom:22px;min-height:175px;max-height:min(48dvh,370px);overflow:hidden;background:linear-gradient(140deg,#0a1224f5,#101b31ed 76%,#0b1220f0);border:1px solid #acb7c074;box-shadow:0 16px 55px #000b;border-radius:10px;backdrop-filter:blur(14px);display:flex;flex-direction:column}
+.dialogue .top{padding:12px 22px 5px;border-bottom:1px solid #d5e0de1c;flex:0 0 auto}
+.speaker{font:600 20px Georgia,serif;color:#f5adad}
+.line{font:17px/1.5 Georgia,serif;color:#f3f2ed;margin:5px 0 7px;max-width:90%}
+.choiceTitle{font:10px system-ui,sans-serif;letter-spacing:1.8px;color:#b4bfcf;margin-bottom:6px}
+.choices{padding:9px 20px 14px;overflow-y:auto;scrollbar-color:#5e6e7d #0d1629;flex:1}
+.choices button{width:100%;text-align:left;padding:10px 14px;border-radius:6px;margin:4px 0;color:#eaf0f1;background:linear-gradient(90deg,#24364b,#1a2639);border:1px solid #6a81966b;font:13px/1.3 system-ui,sans-serif;transition:background .15s,border-color .15s}
+.choices button:hover,.choices button:focus-visible{background:#2e4662;border-color:#9dcecc}
+.choices .optionNum{display:inline-block;min-width:23px;margin-right:12px;border-right:1px solid #6d7e8a;color:#c9b59b;font-weight:600}
+.choices .sub{font-size:10px;color:#e6b999;display:block;margin-left:36px;padding-top:3px}
+.choices .muted{color:#b9c8d2;font:13px system-ui,sans-serif}
+.whisper{position:absolute;z-index:9;left:240px;top:85px;right:24px;padding:12px 19px;border:1px solid #b38bac91;background:#1a0d2bc9;box-shadow:0 3px 26px #070416ac;color:#dfb6ed;font:italic 15px/1.4 Georgia,serif;max-width:550px}
+.whisper:before{content:"THE VOICE WITHIN";font:9px system-ui,sans-serif;letter-spacing:2px;display:block;color:#dfa3b1;margin-bottom:5px}
+.subtitle{position:absolute;bottom:5px;right:22px;z-index:2;color:#d4c6c6a0;font:9px system-ui,sans-serif;letter-spacing:1.2px}
+.toast{position:fixed;z-index:32;right:18px;top:84px;border:1px solid #a9b7b0;background:#12293a;padding:10px 18px;border-radius:7px;font:13px system-ui,sans-serif;max-width:330px;box-shadow:0 8px 34px #0009}
+.modalOverlay{position:fixed;z-index:30;inset:0;background:#030613d9;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{width:min(630px,100%);padding:35px 38px;background:linear-gradient(135deg,#253046,#101b2f);border:1px solid #e7b19a70;border-radius:12px;box-shadow:0 20px 90px #000}
+.modal .eyebrow{font:10px system-ui,sans-serif;letter-spacing:3px;color:#e5ae95}
+.modal h2{font-size:47px;color:#f5d2c2;font-weight:400;margin:9px 0 20px}
+.modal p{font:17px/1.6 Georgia,serif;color:#dae1e7}
+.modal .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.modal button{padding:13px 18px;background:#47526a}
+.modal button.primary{background:#825469;border-color:#f1a8a7}
+.modal button.primary:hover{background:#965d72}
+.ending{position:absolute;inset:0;z-index:15;background:#0b101de5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px}
+.ending h2{font-size:clamp(30px,5vw,68px);font-weight:400;letter-spacing:3px;color:#f5c0b3}
+.ending p{max-width:650px;font:20px/1.6 Georgia,serif;color:#e1d8d2}
+.ending .upgrade{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ending button{padding:12px 17px}
+.hidden{display:none!important}
+@media(max-width:980px){
+ header{padding:9px 12px}.brand{min-width:120px}.brand h1{font-size:22px}
+ .status{gap:9px}.statusItem strong{font-size:12px}.menu button{padding:7px}
+ .travel{left:12px;top:18px;width:142px;padding:8px}
+ .travel button{font-size:11px;padding:8px 7px}
+ .location{left:169px;top:18px}
+ .characterLine{left:153px;right:8px;bottom:150px}
+ .actor{min-width:100px}
+ .actor img{height:min(45dvh,390px)}
+ .dialogue{left:165px;right:12px;bottom:10px;max-height:49dvh}
+ .whisper{left:170px;top:81px;right:12px}
+ .line{font-size:15px}
+}
+@media(max-width:680px){
+ body{overflow:auto}header{height:auto;min-height:64px;flex-wrap:wrap;gap:6px}.brand{flex:1}
+ .brand h1{font-size:18px}.brand span{font-size:8px;letter-spacing:1px}
+ .status{width:100%;order:3;justify-content:space-around}
+ .menu{margin-left:auto}.menu button{font-size:10px;padding:6px}
+ .viewport{height:calc(100dvh - 108px);min-height:620px}
+ .travel{left:7px;top:10px;width:calc(100% - 14px);display:flex;overflow-x:auto;gap:4px;border:none;padding:5px;background:#081322ce}
+ .travel label{display:none}.travel button{width:auto;flex:0 0 auto;margin:0}
+ .location{top:70px;left:10px;max-width:calc(100% - 20px);padding:5px 8px}
+ .location strong{font-size:14px}.location small{font-size:9px}
+ .characterLine{inset:120px 5px 45%;gap:2px}
+ .actor{width:31%;min-width:0;padding:0}.actor img{height:min(40dvh,300px)}
+ .actor .name{font-size:10px;padding:4px 5px}.actor .profession{display:none}
+ .dialogue{left:7px;right:7px;bottom:8px;max-height:44%;min-height:260px}
+ .dialogue .top{padding:8px 12px 2px}
+ .line{font-size:14px;margin:4px 0 5px}.speaker{font-size:17px}
+ .choices{padding:6px 10px}.choices button{font-size:12px;padding:9px}
+ .whisper{left:10px;top:101px;right:10px;font-size:12px}
+ .subtitle{display:none}
+}
+@media(prefers-reduced-motion:reduce){.actor,.actor .profession,.choices button{transition:none}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><h1>THE HUNDRED</h1><span>HONG KONG · A SUPERNATURAL VISUAL NOVEL</span></div>
+ <div class="status">
+  <div class="statusItem"><label>CHAPTER</label><strong>01 / THE FIRST VOW</strong></div>
+  <div class="statusItem"><label>TIME</label><strong id="clock">18:00</strong></div>
+  <div class="statusItem"><label>CASH</label><strong id="money">HK$55</strong></div>
+  <div class="statusItem"><label>ENERGY</label><strong id="energy">74</strong></div>
+ </div>
+ <div class="menu"><span class="build">VN v0.2</span><button id="save">Save</button><button id="audio">♫ Off</button><button id="help">?</button><button id="restart">New</button></div>
+</header>
+<main class="viewport">
+ <section class="stage" aria-label="Story scene">
+  <img class="backdrop" id="backdrop" alt="" aria-hidden="true">
+  <div class="glaze" aria-hidden="true"></div>
+  <nav class="travel" aria-label="Locations"><label>GO TO A PLACE</label><div id="locations"></div></nav>
+  <div class="location"><small>DAY 1 · RAINING</small><strong id="placeName">Old Apartment</strong></div>
+  <div class="characterLine" id="people" aria-label="People you can speak with"></div>
+  <aside class="whisper hidden" id="whisper" aria-live="polite"></aside>
+  <section class="dialogue" aria-label="Conversation">
+   <div class="top"><strong class="speaker" id="speaker">THE CITY</strong><p class="line" id="line">Click a person to begin a conversation.</p></div>
+   <div class="choices"><div class="choiceTitle" id="choiceTitle">CHOOSE YOUR ACTION</div><div id="options"></div></div>
+  </section>
+  <div class="subtitle">EVERY PERSON HAS A STORY. ONLY SOME HAVE DEMONS.</div>
+  <div class="ending hidden" id="ending" aria-live="polite"></div>
+ </section>
+</main>
+<div class="toast hidden" id="toast" role="status"></div>
+<div class="modalOverlay" id="intro">
+ <div class="modal">
+  <span class="eyebrow">A HONG KONG SUPERNATURAL THRILLER</span>
+  <h2>THE HUNDRED</h2>
+  <p>One hundred demons have escaped Hell, each attached to a different human. The last survivor will ascend.</p>
+  <p>The voice inside you does not remember how it kills. You cannot tell who carries a demon by looking at them.</p>
+  <p>Go somewhere. Click a person. Listen closely. A wrong killing takes your own life.</p>
+  <div class="actions"><button id="begin" class="primary">Begin Chapter One</button><button id="resume" class="hidden">Resume Saved Story</button></div>
+ </div>
+</div>
+<script src="src/story.js?v=0.2"></script>
+<script src="src/engine.js?v=0.2"></script>
+<script src="src/art.js?v=0.2"></script>
+<script>
+"use strict";
+(function(){
+ const Story=window.HundredStory,Engine=window.HundredEngine,Art=window.HundredArt;
+ const $=id=>document.getElementById(id);
+ const SAVE_KEY="the-hundred-story-v2";
+ let state=Engine.newGame(),saveAvailable=false,audio=null;
+ const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ const toast=message=>{
+   const n=$("toast");n.textContent=message;n.classList.remove("hidden");
+   // Persist until next player action; no timers required.
+ };
+ const dismissToast=()=>$("toast").classList.add("hidden");
+ try{
+   const old=localStorage.getItem(SAVE_KEY);
+   if(old){const decoded=JSON.parse(old);if(decoded&&decoded.version===Engine.VERSION){state=Engine.restore(decoded);saveAvailable=true;}}
+ }catch{}
+ function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));saveAvailable=true}catch{}}
+ function apply(response){
+   if(!response.ok){toast(response.reason||"That action isn't possible now.");return}
+   dismissToast();state=response.state;persist();render();
+ }
+ function moveTo(id){apply(Engine.visit(state,id))}
+ function talkTo(id){apply(Engine.approach(state,id))}
+ function pick(id){apply(Engine.choose(state,id))}
+ function render(){
+   const publicInfo=Engine.publicState(state);
+   $("clock").textContent=publicInfo.time;
+   $("money").textContent="HK$"+publicInfo.cash;
+   $("energy").textContent=publicInfo.energy+"/100";
+   $("placeName").textContent=Story.places[publicInfo.place].name;
+   $("backdrop").src=Art.scenes[publicInfo.place];
+   $("locations").innerHTML=Object.entries(Story.places).map(([id,p])=>
+     '<button type="button" data-place="'+id+'" class="'+(id===state.place?"active":"")+'" '+(state.outcome?"disabled":"")+'>'+escapeHtml(p.name)+'</button>').join("");
+   $("locations").querySelectorAll("[data-place]").forEach(el=>el.onclick=()=>moveTo(el.dataset.place));
+   $("people").innerHTML=publicInfo.characters.map(id=>{
+     const person=Story.cast[id],active=publicInfo.dialogue?.id===id;
+     return '<button type="button" class="actor '+(active?"selected":"")+'" data-person="'+id+'" '+(state.outcome?"disabled":"")+
+     ' aria-label="Talk to '+escapeHtml(person.name)+'"><img src="'+Art.character(id,Story.cast)+'" alt="" loading="eager"><span class="profession">'+
+     escapeHtml(person.role)+'</span><span class="name">'+escapeHtml(person.name)+'</span></button>';
+   }).join("");
+   $("people").querySelectorAll("[data-person]").forEach(el=>el.onclick=()=>talkTo(el.dataset.person));
+   $("speaker").textContent=publicInfo.dialogue?.speaker||"THE CITY";
+   $("line").textContent=publicInfo.dialogue?.line||publicInfo.sceneText||Story.places[publicInfo.place].description;
+   $("choiceTitle").textContent=publicInfo.dialogue?"HOW DO YOU RESPOND?":"SELECT SOMEONE TO SPEAK WITH";
+   const list=$("options");
+   if(publicInfo.dialogue){
+     list.innerHTML=publicInfo.options.map((o,i)=>
+       '<button type="button" data-choice="'+escapeHtml(o.id)+'"><span class="optionNum">'+(i+1)+'</span>'+escapeHtml(o.label)+
+       (o.warning?'<span class="sub">'+escapeHtml(o.warning)+'</span>':'')+'</button>').join("")+
+       '<button type="button" id="leave"><span class="optionNum">←</span>End conversation</button>';
+     list.querySelectorAll("[data-choice]").forEach(el=>el.onclick=()=>pick(el.dataset.choice));
+     const back=$("leave");if(back)back.onclick=()=>apply(Engine.leave(state));
+   }else{
+     const here=publicInfo.characters.length;
+     list.innerHTML='<p class="muted">'+escapeHtml("Click any of the "+here+" people here. No one is marked suspicious or safe.")+'</p>'+
+       (state.place==="apartment"?'<button id="rest">Rest for an hour (+32 energy)</button>':'');
+     const rest=$("rest");if(rest)rest.onclick=()=>apply(Engine.sleep(state));
+   }
+   if(publicInfo.whisper){
+     $("whisper").classList.remove("hidden");$("whisper").textContent=publicInfo.whisper;
+   }else $("whisper").classList.add("hidden");
+   renderEnding();
+ }
+ function renderEnding(){
+   if(!state.outcome){$("ending").classList.add("hidden");return}
+   const success=state.outcome==="victory";
+   $("ending").classList.remove("hidden");
+   const title=success?"THE FIRST DEMON FALLS":"YOUR HOST IS LOST";
+   const description=success?Story.text("victory"):state.sceneText;
+   $("ending").innerHTML='<div class="build">'+(success?"CHAPTER COMPLETE":"GAME OVER")+'</div><h2>'+escapeHtml(title)+'</h2>'+
+     '<p>'+escapeHtml(description)+'</p>'+
+     (success?'<p style="font-size:14px">'+escapeHtml(Story.text("continueText"))+'</p><div class="upgrade" id="upgrades">'+
+       Object.keys(state.stats).map(key=>'<button data-stat="'+key+'" '+(state.points<=0?"disabled":"")+'>+ '+escapeHtml(key.toUpperCase())+'</button>').join("")+
+       '</div><p style="font-size:12px">Available upgrade points: '+state.points+'</p>':'')+
+     '<button id="playAgain">Start another run</button>';
+   $("ending").querySelectorAll("[data-stat]").forEach(el=>el.onclick=()=>apply(Engine.spend(state,el.dataset.stat)));
+   $("playAgain").onclick=()=>{state=Engine.newGame();persist();render()};
+ }
+ const audioState={ctx:null,on:false,timer:null};
+ function playTone(frequency,duration=.5,volume=.014){
+   if(!audioState.on||!audioState.ctx)return;
+   const ctx=audioState.ctx,osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type="sine";osc.frequency.value=frequency;
+   gain.gain.setValueAtTime(volume,ctx.currentTime);
+   gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+duration);
+   osc.connect(gain).connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+duration);
+ }
+ function toggleSound(){
+   audioState.on=!audioState.on;
+   if(audioState.on){
+     const Ctx=window.AudioContext||window.webkitAudioContext;
+     if(!Ctx){audioState.on=false;toast("Audio is not supported in this browser.");return}
+     audioState.ctx=audioState.ctx||new Ctx();audioState.ctx.resume();
+     let i=0;
+     audioState.timer=setInterval(()=>{playTone([110,164.81,196,146.83,130.81][i++%5],1.55,.010)},1800);
+   }else clearInterval(audioState.timer);
+   $("audio").textContent=audioState.on?"♫ On":"♫ Off";
+ }
+ $("begin").onclick=()=>{
+   state=Engine.newGame();persist();$("intro").classList.add("hidden");render()
+ };
+ $("resume").onclick=()=>{$("intro").classList.add("hidden");render()};
+ $("save").onclick=()=>{persist();toast("Saved on this device.")};
+ $("restart").onclick=()=>{if(window.confirm("Start a new chapter? This will overwrite your current save.")){state=Engine.newGame();persist();render();}};
+ $("help").onclick=()=>toast("Move between locations, click anyone to talk, and respond in conversations. No clues are collected in a notebook. Your choices, time, energy and cash all matter.");
+ $("audio").onclick=toggleSound;
+ window.addEventListener("keydown",e=>{
+   if(!$("intro").classList.contains("hidden")||state.outcome)return;
+   if(e.key==="Escape"&&state.dialogue){apply(Engine.leave(state));return}
+   const n=Number(e.key);
+   if(n>=1&&n<=9&&state.dialogue){const opts=Engine.options(state);if(opts[n-1])pick(opts[n-1].id);}
+ });
+ if(saveAvailable)$("resume").classList.remove("hidden");
+ render();
+})();
+</script>
+</body>
+</html>
