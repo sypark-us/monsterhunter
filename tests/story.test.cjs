@@ -117,3 +117,11 @@ test("UI features full-size anime portraits and conversation choices, not pixel 
   assert.ok(svg.length>2500);
  }
 });
+
+test("a conversation started too close to dawn cannot complete a kill afterward",()=>{
+ const ready=play([...discovery,...confrontation]);
+ const almost={...ready,time:Engine.DAWN-3};
+ const result=Engine.choose(almost,"vincent_cast");
+ assert.equal(result.ok,true);
+ assert.equal(result.state.outcome,"deadline");
+});
