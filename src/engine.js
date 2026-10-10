@@ -55,6 +55,7 @@
   if(topic.requiresTrust&&Object.entries(topic.requiresTrust).some(([id,min])=>(s.relationships[id]||0)<min))return false;
   if(topic.check && s.stats[topic.check.stat]<topic.check.min)return false;
   if(topic.requires&&!topic.requires.every(k=>has(s,k)))return false;
+  if(topic.requiresTopics&&!topic.requiresTopics.every(id=>has(s,usedKey(s,id))))return false;
   if(topic.once!==false&&!topic.repeatable&&has(s,usedKey(s,topic.id)))return false;
   if(topic.effect==="castVincent"&&!canCast(s,"vincent"))return false;
   if(topic.effect==="castKeira"&&!canCast(s,"keira"))return false;
@@ -63,12 +64,22 @@
  function options(s){
   if(!s.dialogue||s.outcome)return[];
   return Story.conversation(s,s.dialogue.id).topics.filter(topic=>topicVisible(s,topic))
-    .map(topic=>({id:topic.id,label:topic.ask,warning:warning(s,topic)}));
+    .map(topic=>({id:topic.id,label:topic.ask,warning:warning(s,topic),cost:actionCost(s,topic)}));
+ }
+ function actionCost(s,topic){
+  const cash=topic.effect==="meal"?-20:topic.effect==="work"?120:0;
+  const energy=topic.effect==="meal"?25:topic.effect==="work"?-23:topic.effect==="rest"?30:-HUMAN_COST.energy;
+  const minutes=topic.effect==="work"?85:topic.effect==="rest"?60:HUMAN_COST.time;
+  return {minutes,cash,energy:Math.min(100,s.energy+energy)-s.energy};
  }
  function warning(s,topic){
   // Initial sense is deliberately unreliable and does not reveal identity.
   if(s.stats.sense<2)return null;
-  if(topic.effect==="falseName")return "Your demon recoils from the request for another name.";
+  if(topic.effect==="falseName"){
+   if(topic.id==="celia_blank")return "Your demon recoils from signing a debt with no stated limit.";
+   if(topic.id==="jun_aboard")return "Your demon recoils from a crossing with no promise of return.";
+   return "Your demon recoils from the request for another name.";
+  }
   if(topic.effect==="castKeira")return "The presence inside her feels ordinary. This may be fatal.";
   if(topic.effect==="press"&&(!has(s,"challengedKeira")||!has(s,"challengedDaniel")))
     return "Your words may not be strong enough to provoke an answer.";
@@ -105,12 +116,11 @@
   if(!next.dialogue||next.outcome)return{ok:false,state:next,reason:"no-conversation"};
   const id=next.dialogue.id,topic=Story.conversation(next,id).topics.find(x=>x.id===optionId);
   if(!topic||!topicVisible(next,topic))return{ok:false,state:next,reason:"not-available"};
-  const monetary=topic.effect==="meal"?-20:topic.effect==="work"?120:0;
-  const energy=topic.effect==="meal"?25:topic.effect==="work"?-23:topic.effect==="rest"?30:-HUMAN_COST.energy;
-  if(!canPay(next,monetary,energy))
-   return{ok:false,state:next,reason:next.cash+monetary<0?t("noMoney"):t("noEnergy")};
-  next.interactions++;next.cash+=monetary;next.energy=Math.min(100,next.energy+energy);
-  next.time+=topic.effect==="work"?85:topic.effect==="rest"?60:HUMAN_COST.time;
+  const cost=actionCost(next,topic);
+  if(!canPay(next,cost.cash,cost.energy))
+   return{ok:false,state:next,reason:next.cash+cost.cash<0?t("noMoney"):t("noEnergy")};
+  next.interactions++;next.cash+=cost.cash;next.energy+=cost.energy;
+  next.time+=cost.minutes;
   if(next.time>=DAWN){expire(next);return{ok:true,state:next};}
   next.flags[usedKey(next,topic.id)]=true;
   if(!next.spokeTo.includes(id))next.spokeTo.push(id);
@@ -136,7 +146,11 @@
     case "family":case "strange":case "privateOffer":case "trueName":case "demonLanguage":
     case "daily":case "rumor":case "warning":
       next.flags[topic.effect]=true;break;
-    case "falseName":lose(next,"rival",id);break;
+    case "falseName":
+      lose(next,"rival",id);
+      if(topic.id==="celia_blank")next.sceneText=topic.answer+" Your signature gives the ledger a debt it can never finish collecting. You lose your last breath.";
+      else if(topic.id==="jun_aboard")next.sceneText=topic.answer+" You accepted a crossing with no promise of return. The boat carries you beyond the living shore.";
+      break;
     case "castKeira":cast(next,"keira");break;
     case "castVincent":cast(next,"vincent");break;
   }
@@ -198,7 +212,7 @@
  }
  function publicState(s){
   // The frontend only needs these names; no hidden demon truth is exported.
-  return {chapter:s.chapter,chapterTitle:Story.chapter(s.chapter).title,objective:Story.chapter(s.chapter).objective,relationships:{...s.relationships},humanity:s.humanity,history:s.history.slice(),place:s.place,time:timestamp(s),cash:s.cash,energy:s.energy,
+  return {chapter:s.chapter,chapterTitle:Story.chapter(s.chapter).title,objective:Story.chapter(s.chapter).objective,relationships:{...s.relationships},humanity:s.humanity,history:s.history.slice(),place:s.place,time:timestamp(s),deadline:timestamp({time:DAWN}),remainingMinutes:Math.max(0,DAWN-s.time),cash:s.cash,energy:s.energy,
     characters:Story.occupants(s,s.place),dialogue:s.dialogue,
     options:options(s),whisper:s.whisper,sceneText:s.sceneText,
     outcome:s.outcome,points:s.points,stats:{...s.stats},powerKnown:s.powerKnown};

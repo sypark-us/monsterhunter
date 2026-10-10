@@ -4,30 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b0f19">
-<title>The Hundred: Hong Kong — Campaign v0.4.2</title>
-<link rel="stylesheet" href="src/visual-novel.css?v=0.4.2">
-<script defer src="src/story.js?v=0.4.2"></script>
-<script defer src="src/campaign.js?v=0.4.2"></script>
-<script defer src="src/audio.js?v=0.4.2"></script>
-<script defer src="src/engine.js?v=0.4.2"></script>
+<title>The Hundred: Hong Kong — Campaign v0.4.3</title>
+<link rel="stylesheet" href="src/visual-novel.css?v=0.4.3">
+<script defer src="src/story.js?v=0.4.3"></script>
+<script defer src="src/campaign.js?v=0.4.3"></script>
+<script defer src="src/guidance.js?v=0.4.3"></script>
+<script defer src="src/audio.js?v=0.4.3"></script>
+<script defer src="src/engine.js?v=0.4.3"></script>
 <script defer src="assets/cast-part-0.js?v=0.3"></script>
 <script defer src="assets/cast-part-1.js?v=0.3"></script>
 <script defer src="assets/cast-part-2.js?v=0.3"></script>
 <script defer src="assets/cast-part-3.js?v=0.3"></script>
-<script defer src="src/visual-assets.js?v=0.4.2"></script>
-<script defer src="src/scene-staging.js?v=0.4.2"></script>
-<script defer src="src/ui.js?v=0.4.2"></script>
+<script defer src="src/visual-assets.js?v=0.4.3"></script>
+<script defer src="src/scene-staging.js?v=0.4.3"></script>
+<script defer src="src/ui.js?v=0.4.3"></script>
 </head>
 <body>
 <header>
  <div class="brand"><h1>THE <em>HUNDRED</em></h1><small>HONG KONG</small></div>
  <div class="status">
   <div class="chapterStat"><label id="chapterLabel">CHAPTER 01</label><strong id="chapterTitle">THE FIRST VOW</strong></div>
-  <div><label>TIME</label><strong id="clock">18:00</strong></div>
+  <div><label>TIME</label><strong id="clock">18:00</strong><small id="deadline" class="deadline">Until 02:00</small></div>
   <div><label>CASH</label><strong id="money">HK$55</strong></div>
   <div><label>ENERGY</label><strong id="energy">74 / 100</strong></div>
  </div>
- <div class="menu"><span class="build" id="versionLabel">v0.4.2 · THE CAMPAIGN</span><button type="button" id="save">Save</button><button type="button" id="history">History</button><button type="button" id="progress">Your Life</button><button type="button" id="settings">Settings</button><button type="button" id="audio">♫ Off</button><button type="button" id="help" aria-label="How to play">?</button><button type="button" id="restart">New</button><a href="credits.html" target="_blank" rel="noopener">Credits</a></div>
+ <div class="menu"><span class="build" id="versionLabel">v0.4.3 · THE CAMPAIGN</span><button type="button" id="save">Save</button><button type="button" id="history">History</button><button type="button" id="progress">Your Life</button><button type="button" id="settings">Settings</button><button type="button" id="audio">♫ Off</button><button type="button" id="help" aria-label="Story and help">Story &amp; Help</button><button type="button" id="restart">New</button><a href="credits.html" target="_blank" rel="noopener">Credits</a></div>
 </header>
 <main class="viewport">
  <section class="stage" aria-label="Visual novel scene">
@@ -39,7 +40,7 @@
   <aside class="whisper hidden" id="whisper" aria-live="polite"></aside>
   <div id="photoStatus" class="photo-status hidden" role="status"><span id="photoMessage"></span><button type="button" id="retryPhoto" class="hidden">Retry</button></div>
   <section class="dialogue" aria-label="Conversation">
-   <div class="top"><strong class="speaker" id="speaker">THE CITY</strong><p class="line" id="line" tabindex="0" role="button" aria-label="Reveal complete dialogue text">Click a person to begin a conversation.</p></div>
+   <div class="top"><strong class="speaker" id="speaker">THE CITY</strong><span id="speakerRole" class="speaker-role"></span><p class="line" id="line" tabindex="0" role="button" aria-label="Reveal complete dialogue text">Click a person to begin a conversation.</p></div>
    <div class="choices"><div class="choiceTitle" id="choiceTitle">CLICK SOMEONE TO TALK</div><div id="options"></div></div>
   </section>
   <p id="objective" class="objective"></p>
@@ -52,9 +53,11 @@
  <div class="modal">
   <span class="eyebrow">A CONVERSATION-DRIVEN SUPERNATURAL THRILLER</span>
   <h2 id="introTitle">THE HUNDRED</h2>
-  <p>One hundred demons have escaped Hell, each attached to a human. The last survivor will ascend.</p>
-  <p>The voice inside you remembers almost nothing. There is no way to identify the others by sight.</p>
-  <p>Go somewhere. Click anyone. Listen closely. A wrong killing takes your own life.</p>
+  <p>A demon has attached itself to you. It speaks inside your mind, but cannot remember its power. Ninety-nine others are hiding inside ordinary people across the city.</p>
+  <p id="introStakes"><strong>Tonight, survive until the next chapter.</strong> You have until <strong>02:00</strong> to defeat a rival. Learn how your power works through conversation. Using it on an innocent person kills you too.</p>
+  <p id="firstLead"><strong>Your first lead:</strong> Mr. Yuen, the caretaker at Tin Hau Shrine, knows stories about spirits and promises. Visit the shrine and speak to him.</p>
+  <section id="resumeContext" class="resume-context hidden" aria-label="Your saved story"></section>
+  <p class="intro-hint">Take your time reading. The clock advances only when you take an action. Open <strong>Story &amp; Help</strong> whenever you need your current goal or a reminder.</p>
   <div class="actions"><button type="button" class="primary" id="begin">Begin the Campaign</button><button type="button" id="resume" class="hidden">Resume Saved Story</button></div>
   <p id="fatal" class="fatal hidden" role="alert"></p>
   <noscript><p class="fatal">JavaScript must be enabled to play this game.</p></noscript>
