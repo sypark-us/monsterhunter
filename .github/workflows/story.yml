@@ -5,16 +5,46 @@ on:
     branches: [main]
 permissions:
   contents: read
+concurrency:
+  group: story-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run conversation and curse rule tests
+      - name: Test conversation rules and artwork integrity
         run: node --test tests/*.test.cjs
+      - name: Bundle licensed photographic backgrounds
+        run: node scripts/prepare-art.cjs
+      - name: Install browser test tools
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.55.1
+          npx playwright install --with-deps chromium
+      - name: Test rendered game in Chromium
+        run: node scripts/browser-smoke.cjs
+      - name: Save browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: story-visual-smoke
+          path: screenshots/
+          if-no-files-found: ignore
+      - name: Assemble deployable game only
+        run: |
+          mkdir -p _site
+          cp index.html credits.html _site/
+          cp -R src assets _site/
+          touch _site/.nojekyll
+      - name: Upload tested Pages site
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [test]
@@ -27,12 +57,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
         with:
           enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
       - id: deployment
         uses: actions/deploy-pages@v4
