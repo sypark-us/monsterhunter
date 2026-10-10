@@ -1,203 +1,163 @@
-/* THE HUNDRED — deterministic rule engine for the scripted prologue.
- * Story content can be localized independently. Hidden possession is checked
- * only by the rule engine, never by a conversation-choice label.
+/* THE HUNDRED — deterministic conversation-combat engine.
+ * No evidence notebook, suspect scores, clue markers, or investigation actions.
+ * NPCs have ordinary public identities. Only the rules engine can determine
+ * whether an intended victim is possessed.
  */
 (function(root,factory){
-  "use strict";
-  const story=(typeof module==="object"&&module.exports)?require("./story.js"):root.HundredStory;
-  const api=factory(story);
-  if(typeof module==="object"&&module.exports)module.exports=api;
-  root.HundredEngine=api;
+ const story=(typeof module==="object"&&module.exports)?require("./story.js"):root.HundredStory;
+ const engine=factory(story);
+ if(typeof module==="object"&&module.exports)module.exports=engine;
+ root.HundredEngine=engine;
 })(typeof globalThis!=="undefined"?globalThis:this,function(Story){
-  "use strict";
-  const STORY_VERSION=1;
-  const START=1080,DAWN=1800;
-  const T=(key,lang="en")=>Story.text(key,lang);
-  const scenes=["apartment","street","market","shrine","hotel","talk","private","ending","lost"];
-  const action=(id,scene,labelKey,options={})=>({id,scene,labelKey,minutes:options.minutes||0,
-    money:options.money||0,energy:options.energy||0,needs:options.needs||null,
-    visit:options.visit||null,once:options.once||false,note:options.note||null,
-    effect:options.effect||null,warning:options.warning||null});
-  const ACTIONS=[
-    action("dream","apartment","action.dream",{minutes:25,energy:-3,once:true,note:"evidence.dream",effect:"dream"}),
-    action("rent","apartment","action.rent",{once:true,note:"evidence.rent",effect:"rent"}),
-    action("leave","apartment","action.leave",{minutes:20,visit:"street"}),
-    action("rest","apartment","action.rest",{minutes:65,energy:35,once:true,effect:"rest"}),
-    action("work","street","action.work",{minutes:115,energy:-25,money:170,once:true,effect:"work"}),
-    action("market","street","action.market",{minutes:20,visit:"market"}),
-    action("shrine","street","action.shrine",{minutes:25,visit:"shrine"}),
-    action("hotel","street","action.hotel",{minutes:30,visit:"hotel"}),
-    action("home","street","action.home",{minutes:20,visit:"apartment"}),
-    action("wait","street","action.wait",{effect:"wait"}),
-    action("eat","market","action.eat",{minutes:25,money:-20,energy:28,effect:"eat"}),
-    action("witness","market","action.witness",{minutes:35,once:true,note:"evidence.witness",effect:"witness"}),
-    action("keiraPromise","market","action.keiraPromise",{minutes:20,once:true,effect:"keiraPromise"}),
-    action("keiraBreak","market","action.keiraBreak",{minutes:25,needs:["keiraPromise"],once:true,effect:"keiraBreak"}),
-    action("castKeira","market","action.castKeira",{effect:"castKeira",warning:"label.civilianWarning"}),
-    action("marketStreet","market","action.street",{minutes:20,visit:"street"}),
-    action("ritual","shrine","action.ritual",{minutes:35,once:true,note:"evidence.shrine",effect:"ritual"}),
-    action("mural","shrine","action.mural",{minutes:25,once:true,note:"evidence.mural",effect:"mural"}),
-    action("shrineStreet","shrine","action.street",{minutes:25,visit:"street"}),
-    action("guestbook","hotel","action.guestbook",{minutes:35,money:-20,once:true,note:"evidence.guestbook",effect:"guestbook"}),
-    action("vincent","hotel","action.vincent",{minutes:15,visit:"talk",effect:"vincent"}),
-    action("private","hotel","action.private",{minutes:15,effect:"private",warning:"label.risk"}),
-    action("privateTrue","hotel","action.privateTrue",{minutes:15,visit:"private",effect:"trueName",warning:"label.risk"}),
-    action("hotelStreet","hotel","action.street",{minutes:30,visit:"street"}),
-    action("alibi","talk","action.alibi",{minutes:20,once:true,note:"evidence.vincentAlibi",effect:"alibi"}),
-    action("warning","talk","action.warning",{minutes:15,once:true,note:"evidence.private",effect:"warning"}),
-    action("vincentPromise","talk","action.vincentPromise",{minutes:25,once:true,effect:"vincentPromise"}),
-    action("press","talk","action.press",{minutes:20,needs:["vincentPromise"],effect:"press"}),
-    action("castVincent","talk","action.castVincent",{effect:"castVincent"}),
-    action("withdraw","talk","action.withdraw",{minutes:5,visit:"hotel"}),
-    action("returnLobby","private","action.returnLobby",{minutes:10,visit:"hotel"})
-  ];
-  const byId=Object.fromEntries(ACTIONS.map(a=>[a.id,a]));
-  const humanNames=Object.keys(Story.characters);
-  function startState(){
-    return {
-      version:STORY_VERSION,chapter:1,scene:"apartment",
-      minutes:START,money:45,energy:65,rentDue:120,
-      stats:{sense:1,intelligence:1,charisma:1,dominion:1},points:0,
-      fragments:[],evidence:[],flags:{},oaths:{
-        vincent:{bound:false,renounced:false},keira:{bound:false,renounced:false}
-      },
-      selectedTarget:null,knownAbility:false,
-      eliminated:0,cursedRemaining:100,life:"alive",outcome:null,
-      journal:[{key:"scene.prelude",minute:START}],lastAction:null
-    };
+ "use strict";
+ const VERSION=2,DAWN=1560,START=1080,RENT=120;
+ const HIDDEN_POSSESSION=Object.freeze({vincent:true,ada:false,keira:false,marcus:false,iris:false,daniel:false,yuen:false});
+ const HUMAN_COST=Object.freeze({time:8,energy:2});
+ function newGame(){
+  return {version:VERSION,place:"apartment",time:START,cash:55,energy:74,rentDue:RENT,
+    flags:{},visited:["apartment"],spokeTo:[],interactions:0,powerKnown:false,
+    whisper:"",dialogue:null,sceneText:"",outcome:null,points:0,
+    stats:{sense:1,intelligence:1,charisma:1,dominion:1},lastTarget:null};
+ }
+ const copy=s=>JSON.parse(JSON.stringify(s));
+ const has=(s,flag)=>!!s.flags[flag];
+ const t=(key,lang="en")=>Story.text(key,lang);
+ const timestamp=s=>String(Math.floor(s.time/60)%24).padStart(2,"0")+":"+String(s.time%60).padStart(2,"0");
+ function isValidPlace(place){return !!Story.places[place]}
+ function isHere(s,id){return !!Story.places[s.place]?.people.includes(id)}
+ function canPay(s,cash,energy){return s.cash+cash>=0&&s.energy+energy>=0}
+ function expire(s){
+  if(s.time>=DAWN && !s.outcome){
+   s.outcome="deadline";s.dialogue=null;s.sceneText=t("deadlineDeath");
   }
-  function clone(s){return JSON.parse(JSON.stringify(s))}
-  function hasEvidence(s,k){return s.evidence.includes(k)}
-  function hasFlag(s,k){return s.flags[k]===true}
-  function fragment(s,k){if(!s.fragments.includes(k))s.fragments.push(k);s.knownAbility=Story.rules.playerCurse.fragments.every(f=>s.fragments.includes(f))}
-  function evidence(s,key){if(!s.evidence.includes(key))s.evidence.push(key)}
-  function say(s,key){s.journal.unshift({key,minute:s.minutes});s.journal=s.journal.slice(0,32)}
-  function clock(s){const hh=Math.floor(s.minutes/60)%24,mm=s.minutes%60;return String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0")}
-  function disableReason(s,a){
-    if(s.outcome||s.scene==="ending"||s.scene==="lost")return "label.noMore";
-    if(a.scene!==s.scene)return "label.noMore";
-    if(a.once&&hasFlag(s,"done:"+a.id))return "label.noMore";
-    if(a.needs&&a.needs.some(f=>!hasFlag(s,f)))return "label.noMore";
-    if(s.money+a.money<0)return "event.noMoney";
-    if(s.energy+a.energy<0)return "event.noEnergy";
-    if(a.id==="castVincent"&&!canCast(s,"vincent").ok)return canCast(s,"vincent").reason;
-    if(a.id==="castKeira"&&!canCast(s,"keira").ok)return canCast(s,"keira").reason;
-    if(a.id==="press"&&s.oaths.vincent.renounced)return "label.noMore";
-    if(a.id==="eat"&&s.energy>=99)return "label.noMore";
-    return null;
+ }
+ function visit(s,place){
+  const next=copy(s);
+  if(next.outcome||!isValidPlace(place))return{ok:false,state:next,reason:"invalid-location"};
+  if(place!==next.place){
+   next.place=place;next.dialogue=null;next.sceneText="";
+   next.time+=15;next.energy=Math.max(0,next.energy-1);
+   if(!next.visited.includes(place))next.visited.push(place);
+   expire(next);
   }
-  function dangerHint(s,a){
-    if(a.id==="private"||a.id==="privateTrue"){
-      if(s.stats.sense>=2 || hasEvidence(s,"evidence.mural"))
-        return "evidence.mural";
-      return "label.risk";
-    }
-    if(a.id==="castKeira"&&(s.stats.sense>=2 || hasEvidence(s,"evidence.keira")))return "label.civilianWarning";
-    if(a.id==="press"&&!caseReady(s))return "label.requiresProof";
-    return a.warning&&s.stats.sense>=2?a.warning:null;
+  return {ok:true,state:next};
+ }
+ function approach(s,id){
+  const next=copy(s);
+  if(next.outcome||!Story.cast[id]||!isHere(next,id))return{ok:false,state:next,reason:"not-here"};
+  next.dialogue={id,line:Story.conversations[id].greeting,speaker:Story.cast[id].name,replyId:null};
+  next.sceneText="";
+  return{ok:true,state:next};
+ }
+ function leave(s){const next=copy(s);next.dialogue=null;next.sceneText="";return{ok:true,state:next}}
+ function topicVisible(s,topic){
+  if(topic.requires&&!topic.requires.every(k=>has(s,k)))return false;
+  if(topic.once!==false&&!topic.repeatable&&has(s,"used:"+topic.id))return false;
+  if(topic.effect==="castVincent"&&!canCast(s,"vincent"))return false;
+  if(topic.effect==="castKeira"&&!canCast(s,"keira"))return false;
+  return true;
+ }
+ function options(s){
+  if(!s.dialogue||s.outcome)return[];
+  return Story.conversations[s.dialogue.id].topics.filter(topic=>topicVisible(s,topic))
+    .map(topic=>({id:topic.id,label:topic.ask,warning:warning(s,topic)}));
+ }
+ function warning(s,topic){
+  // Initial sense is deliberately unreliable and does not reveal identity.
+  if(s.stats.sense<2)return null;
+  if(topic.effect==="falseName")return "Your demon recoils from the request for another name.";
+  if(topic.effect==="castKeira")return "The presence inside her feels ordinary. This may be fatal.";
+  if(topic.effect==="press"&&(!has(s,"challengedKeira")||!has(s,"challengedDaniel")))
+    return "Your words may not be strong enough to provoke an answer.";
+  return null;
+ }
+ function canCast(s,id){return s.powerKnown && has(s,"bound"+capitalize(id))&&has(s,"renounced"+capitalize(id))}
+ function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+ function updateWhisper(s){
+  if(!s.powerKnown && has(s,"oathTeaching") && (has(s,"oathEcho")||has(s,"boundKeira")||has(s,"boundVincent"))){
+   s.powerKnown=true;s.whisper=t("whisper3");
+  }else if(!s.powerKnown && has(s,"oathTeaching")){
+   s.whisper=t("whisper2");
+  }else if(!s.powerKnown&&s.interactions>=2&&!has(s,"heardWhisper")){
+   s.flags.heardWhisper=true;s.whisper=t("whisper1");
   }
-  function choices(s){return (s.outcome?[]:ACTIONS.filter(a=>a.scene===s.scene)).map(a=>({
-    id:a.id,labelKey:a.labelKey,disabled:!!disableReason(s,a),
-    reason:disableReason(s,a),warning:dangerHint(s,a),
-    minutes:a.minutes,money:a.money,energy:a.energy
-  }))}
-  function caseReady(s){return hasEvidence(s,"evidence.witness")&&hasEvidence(s,"evidence.guestbook")&&hasEvidence(s,"evidence.vincentAlibi")}
-  function canCast(s,targetId){
-    if(!humanNames.includes(targetId))return{ok:false,reason:"event.noTarget"};
-    if(!s.knownAbility)return{ok:false,reason:"event.noPower"};
-    const oath=s.oaths[targetId];
-    if(!oath?.bound||!oath.renounced)return{ok:false,reason:"event.noTarget"};
-    if(s.scene!==(targetId==="vincent"?"talk":"market"))return{ok:false,reason:"event.noTarget"};
-    return {ok:true};
+ }
+ function win(s,target){
+  s.outcome="victory";s.lastTarget=target;s.points+=1;
+  s.sceneText=t("victory");s.dialogue=null;
+ }
+ function lose(s,cause,target){
+  s.outcome=cause;s.lastTarget=target;s.dialogue=null;
+  s.sceneText=t(cause==="civilian"?"innocentDeath":cause==="rival"?"rivalDeath":"deadlineDeath");
+ }
+ function cast(s,target){
+  if(!canCast(s,target))return false;
+  if(HIDDEN_POSSESSION[target])win(s,target);
+  else lose(s,"civilian",target);
+  return true;
+ }
+ function choose(s,optionId){
+  const next=copy(s);
+  if(!next.dialogue||next.outcome)return{ok:false,state:next,reason:"no-conversation"};
+  const id=next.dialogue.id,topic=Story.conversations[id].topics.find(x=>x.id===optionId);
+  if(!topic||!topicVisible(next,topic))return{ok:false,state:next,reason:"not-available"};
+  const monetary=topic.effect==="meal"?-20:topic.effect==="work"?120:0;
+  const energy=topic.effect==="meal"?25:topic.effect==="work"?-23:topic.effect==="rest"?30:-HUMAN_COST.energy;
+  if(!canPay(next,monetary,energy))
+   return{ok:false,state:next,reason:next.cash+monetary<0?t("noMoney"):t("noEnergy")};
+  next.interactions++;next.cash+=monetary;next.energy=Math.min(100,next.energy+energy);
+  next.time+=topic.effect==="work"?85:topic.effect==="rest"?60:HUMAN_COST.time;
+  next.flags["used:"+topic.id]=true;
+  if(!next.spokeTo.includes(id))next.spokeTo.push(id);
+  next.sceneText="";
+  next.whisper="";next.dialogue={id,line:topic.answer,speaker:Story.cast[id].name,replyId:topic.id};
+  switch(topic.effect){
+    case "rent":next.sceneText=t("rent");break;
+    case "rest":next.sceneText=t("sleep");break;
+    case "meal":next.sceneText=t("costMeal");break;
+    case "work":next.sceneText=t("costWork");break;
+    case "heardKeira":case "heardDaniel":case "boundKeira":case "renouncedKeira":
+    case "boundVincent":case "renouncedVincent":case "vincentAlibi":case "vincentPrivacy":
+    case "challengedKeira":case "challengedDaniel":case "oathTeaching":case "oathEcho":
+    case "family":case "strange":case "privateOffer":case "trueName":case "demonLanguage":
+    case "daily":case "rumor":case "warning":
+      next.flags[topic.effect]=true;break;
+    case "falseName":lose(next,"rival",id);break;
+    case "castKeira":cast(next,"keira");break;
+    case "castVincent":cast(next,"vincent");break;
   }
-  function ending(s,result,entry){
-    s.life=result==="victory"?"alive":"dead";
-    s.outcome=result;s.scene=result==="victory"?"ending":"lost";
-    if(result==="victory"){
-      s.eliminated++;s.cursedRemaining--;s.points+=1;s.flags.rentPaid=s.money>=s.rentDue;
-    }
-    say(s,entry);s.lastAction=entry;
-  }
-  function invoke(s,targetId){
-    const check=canCast(s,targetId);
-    if(!check.ok){say(s,check.reason);return false}
-    // A wrong target is lethal: there is no immunity shortcut or free identity scan.
-    if(!Story.characters[targetId].possessed){
-      ending(s,"civilian_backfire","event.civilianDeath");return true;
-    }
-    ending(s,"victory","event.win");return true;
-  }
-  function apply(s,a){
-    const next=clone(s),reason=disableReason(next,a);
-    if(reason)return {state:next,accepted:false,reason};
-    next.money+=a.money;next.energy=Math.max(0,Math.min(100,next.energy+a.energy));
-    next.minutes+=a.minutes;next.flags["done:"+a.id]=true;
-    if(a.visit)next.scene=a.visit;
-    if(a.note)evidence(next,a.note);
-    switch(a.effect){
-      case "dream":fragment(next,"dream");say(next,"event.dream");break;
-      case "rent":say(next,"event.rent");break;
-      case "rest":say(next,"event.rest");break;
-      case "work":say(next,"event.work");break;
-      case "eat":say(next,"event.eat");break;
-      case "witness":evidence(next,"evidence.keira");say(next,"event.witness");break;
-      case "keiraPromise":next.oaths.keira.bound=true;next.flags.keiraPromise=true;say(next,"event.keiraPromise");break;
-      case "keiraBreak":next.oaths.keira.renounced=true;say(next,"event.keiraBreak");break;
-      case "ritual":fragment(next,"shrine");say(next,"event.ritual");break;
-      case "mural":say(next,"event.mural");break;
-      case "guestbook":say(next,"event.guestbook");break;
-      case "vincent":say(next,"event.vincent");break;
-      case "trueName":say(next,"event.trueName");break;
-      case "private":
-        // Rival's condition must be validated, not inferred from dialogue alone.
-        if(Story.characters.june.possessed &&
-          Story.rules.rivalCurse.condition.invitationAccepted&&
-          Story.rules.rivalCurse.condition.falseNameGiven&&
-          Story.rules.rivalCurse.condition.privateRoomEntered){
-          ending(next,"rival_trap","event.rivalTrap");
-        }break;
-      case "alibi":say(next,"event.alibi");if(caseReady(next))evidence(next,"evidence.contradiction");break;
-      case "warning":say(next,"event.warning");break;
-      case "vincentPromise":next.oaths.vincent.bound=true;next.flags.vincentPromise=true;say(next,"event.vincentPromise");break;
-      case "press":
-        if(caseReady(next)){
-          next.oaths.vincent.renounced=true;
-          evidence(next,"evidence.contradiction");
-          say(next,"event.press");
-        }else say(next,"event.pressFail");
-        break;
-      case "castKeira":invoke(next,"keira");break;
-      case "castVincent":invoke(next,"vincent");break;
-      case "wait":next.minutes=DAWN;break;
-    }
-    // Natural travel is not itself proof or an action by a rival demon.
-    if(next.minutes>=DAWN&&!next.outcome)ending(next,"deadline","event.dawn");
-    if(!next.lastAction)next.lastAction=a.effect?"event."+a.effect:null;
-    return {state:next,accepted:true,reason:null};
-  }
-  function perform(s,id){
-    const a=byId[id];if(!a||a.scene!==s.scene)return{state:clone(s),accepted:false,reason:"label.noMore"};
-    return apply(s,a);
-  }
-  function spendPoint(s,stat){
-    if(s.outcome!=="victory"||s.points<=0||!(stat in s.stats))
-      return{state:clone(s),accepted:false,reason:"label.noMore"};
-    const n=clone(s);n.stats[stat]++;n.points--;say(n,"event.level");
-    return{state:n,accepted:true,reason:null};
-  }
-  function hydrate(snapshot){
-    if(!snapshot||snapshot.version!==STORY_VERSION||!scenes.includes(snapshot.scene))
-      return startState();
-    try{
-      const base=startState();
-      // Only import expected fields; don't accept arbitrary extra game state.
-      for(const key of Object.keys(base))if(Object.prototype.hasOwnProperty.call(snapshot,key))
-        base[key]=clone(snapshot[key]);
-      if(!Number.isFinite(base.minutes)||!Number.isFinite(base.money)||!Array.isArray(base.evidence)||!base.oaths?.vincent)
-        return startState();
-      return base;
-    }catch{return startState()}
-  }
-  return {STORY_VERSION,START,DAWN,T,scenes,ACTIONS,startState,clock,choices,hasFlag,
-    hasEvidence,caseReady,canCast,perform,spendPoint,hydrate};
+  if(!next.outcome)updateWhisper(next);
+  expire(next);
+  return{ok:true,state:next};
+ }
+ function sleep(s){
+  const next=copy(s);
+  if(next.outcome||next.place!=="apartment")return{ok:false,state:next,reason:"not-home"};
+  next.time+=65;next.energy=Math.min(100,next.energy+32);
+  next.sceneText=t("sleep");next.dialogue=null;
+  expire(next);return{ok:true,state:next};
+ }
+ function spend(s,stat){
+  const next=copy(s);
+  if(next.outcome!=="victory"||next.points<=0||!(stat in next.stats))return{ok:false,state:next};
+  next.points--;next.stats[stat]++;return{ok:true,state:next};
+ }
+ function restore(saved){
+  if(!saved || saved.version!==VERSION)return newGame();
+  try{
+   const s=copy(saved);
+   if(!isValidPlace(s.place)||!Number.isFinite(s.time)||!Number.isFinite(s.cash)||
+      !Number.isFinite(s.energy)||!s.flags||!Array.isArray(s.spokeTo))return newGame();
+   return s;
+  }catch{return newGame()}
+ }
+ function publicState(s){
+  // The frontend only needs these names; no hidden demon truth is exported.
+  return {place:s.place,time:timestamp(s),cash:s.cash,energy:s.energy,
+    characters:Story.places[s.place].people.slice(),dialogue:s.dialogue,
+    options:options(s),whisper:s.whisper,sceneText:s.sceneText,
+    outcome:s.outcome,points:s.points,stats:{...s.stats},powerKnown:s.powerKnown};
+ }
+ return{VERSION,START,DAWN,newGame,restore,t,timestamp,visit,approach,leave,
+   choose,options,sleep,spend,publicState};
 });
