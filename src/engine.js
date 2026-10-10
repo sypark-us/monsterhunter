@@ -75,7 +75,7 @@
  function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
  function updateWhisper(s){
   if(!s.powerKnown && has(s,"oathTeaching") && (has(s,"oathEcho")||has(s,"boundKeira")||has(s,"boundVincent"))){
-   s.powerKnown=true;s.whisper=t("whisper3");
+   s.powerKnown=true;s.flags.powerKnown=true;s.whisper=t("whisper3");
   }else if(!s.powerKnown && has(s,"oathTeaching")){
    s.whisper=t("whisper2");
   }else if(!s.powerKnown&&s.interactions>=2&&!has(s,"heardWhisper")){
